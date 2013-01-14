@@ -1,0 +1,29 @@
+#!/bin/sh
+
+SUBST=subst.$PPID
+CUDA_LOCATIONS="/usr/local/cuda:/opt/cuda"
+OPENCL_INCDIR=""
+
+printf "Checking OpenCL headers ..."
+for loc in $(echo $CUDA_LOCATIONS | tr ":" "\n")
+do
+    _PATH="$loc/include"
+
+    if [ -d "$_PATH" ]
+    then
+        OPENCL_INCDIR=$_PATH
+    fi
+done
+
+if [ "$OPENCL_INCDIR" = "" ];then
+    printf " not found\n"
+    exit 1
+else
+    printf " found\n"
+fi
+
+echo "s,@OPENCL_INCDIR@,$OPENCL_INCDIR," >> $SUBST
+sed -f $SUBST Makefile.in > Makefile
+rm -f $SUBST
+
+printf "\n** Configuration done. Use \`make\` to build.\n"
