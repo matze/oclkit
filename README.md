@@ -15,6 +15,8 @@ plate over and over again, yet keeping full control over executing OpenCL.
 * `ocl_get_num_devices`: Return the number of detected devices.
 * `ocl_get_devices`: Return array of devices.
 * `ocl_get_cmd_queues`: Return array of command queues.
+* `ocl_get_program`: Create program from source file. Release with
+  `clReleaseProgram`.
 * `ocl_strerr`: Return static C string of an OpenCL error code.
 * `OCL_CHECK_ERROR`: Check error code and print a message on `stderr` if error
   code is not `CL_SUCCESS`.
