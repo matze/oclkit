@@ -4,15 +4,18 @@ OPENCL_INCDIR = -I@OPENCL_INCDIR@
 OPENCL_LIBS = -lOpenCL
 CFLAGS = $(OPENCL_INCDIR) -Wall -Werror -std=c99
 LDFLAGS = $(OPENCL_LIBS)
-BIN = leak
+BIN = leak maxlocal
 
 .PHONY: clean
 
 leak: $(OBJ) leak.o
 	$(CC) -o $@ $(OBJ) leak.o $(LDFLAGS)
 
+maxlocal: $(OBJ) maxlocal.o
+	$(CC) -o $@ $(OBJ) maxlocal.o $(LDFLAGS)
+
 %.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
-	rm -f $(OBJ) $(BIN) leak.o
+	rm -f $(OBJ) $(BIN) leak.o maxlocal.o
