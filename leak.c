@@ -19,7 +19,9 @@ main (int argc, char const* argv[])
     if (ocl == NULL)
         return 1;
 
-    program = ocl_get_program (ocl, "test.cl", NULL);
+    program = ocl_create_program_from_file (ocl, "test.cl", NULL, &errcode);
+    OCL_CHECK_ERROR (errcode);
+
     cmd_queues = ocl_get_cmd_queues (ocl);
     kernel = clCreateKernel (program, "fill_ones", &errcode);
     OCL_CHECK_ERROR (errcode);

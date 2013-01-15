@@ -1,5 +1,5 @@
 SRC = $(wildcard *.c)
-OBJ = $(patsubst %.c,%.o,$(SRC))
+OBJ = ocl.o
 OPENCL_INCDIR = -I@OPENCL_INCDIR@
 OPENCL_LIBS = -lOpenCL
 CFLAGS = $(OPENCL_INCDIR) -Wall -Werror -std=c99
@@ -8,11 +8,11 @@ BIN = leak
 
 .PHONY: clean
 
-$(BIN): $(OBJ)
-	$(CC) -o $(BIN) $(OBJ) $(LDFLAGS)
+leak: $(OBJ) leak.o
+	$(CC) -o $@ $(OBJ) leak.o $(LDFLAGS)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
-	rm -f $(OBJ) $(BIN)
+	rm -f $(OBJ) $(BIN) leak.o

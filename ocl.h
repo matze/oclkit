@@ -28,9 +28,16 @@ typedef struct OclPlatform OclPlatform;
 OclPlatform *       ocl_new             (void);
 void                ocl_free            (OclPlatform    *ocl);
 cl_context          ocl_get_context     (OclPlatform    *ocl);
-cl_program          ocl_get_program     (OclPlatform    *ocl,
+cl_program          ocl_create_program_from_file
+                                        (OclPlatform    *ocl,
                                          const char     *filename,
-                                         const char     *options);
+                                         const char     *options,
+                                         cl_int         *errcode);
+cl_program          ocl_create_program_from_source
+                                        (OclPlatform    *ocl,
+                                         const char     *source,
+                                         const char     *options,
+                                         cl_int         *errcode);
 int                 ocl_get_num_devices (OclPlatform    *ocl);
 cl_device_id *      ocl_get_devices     (OclPlatform    *ocl);
 cl_command_queue *  ocl_get_cmd_queues  (OclPlatform    *ocl);

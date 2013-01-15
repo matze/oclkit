@@ -16,6 +16,7 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <assert.h>
 #include "ocl.h"
 
@@ -83,12 +84,14 @@ static const char* opencl_error_msgs[] = {
 const char*
 ocl_strerr (int error)
 {
-    if (error >= -14)
-        return opencl_error_msgs[-error];
-    if (error <= -30)
-        return opencl_error_msgs[-error-15];
+    int index = 0;
 
-    return NULL;
+    if (error >= -14)
+        index = -error;
+    else if (error <= -30 && error >= -64)
+        index = -error-15;
+
+    return opencl_error_msgs[index];
 }
 
 static char *
@@ -98,7 +101,7 @@ ocl_read_program (const char *filename)
     char *buffer;
     size_t length;
     size_t buffer_length;
-    
+
     if ((fp = fopen(filename, "r")) == NULL)
         return NULL;
 
@@ -131,7 +134,7 @@ ocl_new (void)
     OclPlatform *ocl;
     cl_platform_id platform;
     int errcode;
-    
+
     OCL_CHECK_ERROR (clGetPlatformIDs (1, &platform, NULL));
 
     if (platform == NULL)
@@ -169,47 +172,68 @@ ocl_free (OclPlatform *ocl)
     free (ocl);
 }
 
-cl_program
-ocl_get_program (OclPlatform *ocl,
-                 const char *filename,
-                 const char *options)
+static void
+transfer_error (cl_int src, cl_int *dst)
 {
-    char *buffer;
-    int errcode;
+    if (dst != NULL)
+        *dst = src;
+}
+
+cl_program
+ocl_create_program_from_source (OclPlatform *ocl,
+                                const char *source,
+                                const char *options,
+                                cl_int *errcode)
+{
+    cl_int tmp_err;
     cl_program program;
-    
-    buffer = ocl_read_program(filename);
 
-    if (buffer == NULL)
-        return NULL;
+    program = clCreateProgramWithSource (ocl->context, 1, (const char **) &source, NULL, &tmp_err);
 
-    program = clCreateProgramWithSource (ocl->context, 1, (const char **) &buffer, NULL, &errcode);
-    OCL_CHECK_ERROR (errcode);
-
-    if (errcode != CL_SUCCESS) {
-        free(buffer);
+    if (tmp_err != CL_SUCCESS) {
+        transfer_error (tmp_err, errcode);
         return NULL;
     }
 
-    errcode = clBuildProgram (program, ocl->num_devices, ocl->devices, options, NULL, NULL);
-    OCL_CHECK_ERROR (errcode);
+    tmp_err = clBuildProgram (program, ocl->num_devices, ocl->devices, options, NULL, NULL);
 
-    if (errcode != CL_SUCCESS) {
-        const int LOG_SIZE = 4096;
+    if (tmp_err != CL_SUCCESS) {
         char* log;
-        
+        const int LOG_SIZE = 4096;
+
+        transfer_error (tmp_err, errcode);
+
         log = malloc (LOG_SIZE * sizeof(char));
         OCL_CHECK_ERROR (clGetProgramBuildInfo (program, ocl->devices[0],
                                                 CL_PROGRAM_BUILD_LOG, LOG_SIZE,
                                                 (void*) log, NULL));
 
-        fprintf (stderr, "\n=== Build log for %s===%s\n\n", filename, log);
+        fprintf (stderr, "\n=== Build log ===%s\n\n", log);
         free (log);
-        free (buffer);
         return NULL;
     }
 
-    free(buffer);
+    *errcode = CL_SUCCESS;
+
+    return program;
+}
+
+cl_program
+ocl_create_program_from_file (OclPlatform *ocl,
+                              const char *filename,
+                              const char *options,
+                              cl_int *errcode)
+{
+    char *source;
+    cl_program program;
+
+    source = ocl_read_program (filename);
+
+    if (source == NULL)
+        return NULL;
+
+    program = ocl_create_program_from_source (ocl, source, options, errcode);
+    free(source);
     return program;
 }
 
