@@ -21,6 +21,7 @@
 #include "ocl.h"
 
 struct OclPlatform {
+    cl_platform_id       platform;
     cl_context           context;
     cl_uint              num_devices;
     cl_device_id        *devices;
@@ -94,6 +95,13 @@ ocl_strerr (int error)
     return opencl_error_msgs[index];
 }
 
+static void
+transfer_error (cl_int src, cl_int *dst)
+{
+    if (dst != NULL)
+        *dst = src;
+}
+
 static char *
 ocl_read_program (const char *filename)
 {
@@ -129,25 +137,21 @@ ocl_read_program (const char *filename)
 }
 
 OclPlatform *
-ocl_new (void)
+ocl_new (cl_device_type type)
 {
     OclPlatform *ocl;
-    cl_platform_id platform;
-    int errcode;
-
-    OCL_CHECK_ERROR (clGetPlatformIDs (1, &platform, NULL));
-
-    if (platform == NULL)
-        return NULL;
+    cl_int errcode;
 
     ocl = malloc (sizeof(OclPlatform));
 
-    OCL_CHECK_ERROR (clGetDeviceIDs (platform, CL_DEVICE_TYPE_ALL, 0, NULL, &ocl->num_devices));
+    OCL_CHECK_ERROR (clGetPlatformIDs (1, &ocl->platform, NULL));
+    OCL_CHECK_ERROR (clGetDeviceIDs (ocl->platform, type, 0, NULL, &ocl->num_devices));
+
     ocl->devices = malloc (ocl->num_devices * sizeof(cl_device_id));
-    OCL_CHECK_ERROR (clGetDeviceIDs (platform, CL_DEVICE_TYPE_ALL, ocl->num_devices, ocl->devices, NULL));
+    OCL_CHECK_ERROR (clGetDeviceIDs (ocl->platform, type, ocl->num_devices, ocl->devices, NULL));
 
     ocl->context = clCreateContext (NULL, ocl->num_devices, ocl->devices, NULL, NULL, &errcode);
-    OCL_CHECK_ERROR(errcode);
+    OCL_CHECK_ERROR (errcode);
 
     ocl->cmd_queues = malloc (ocl->num_devices * sizeof(cl_command_queue));
 
@@ -172,11 +176,17 @@ ocl_free (OclPlatform *ocl)
     free (ocl);
 }
 
-static void
-transfer_error (cl_int src, cl_int *dst)
+char *
+ocl_get_platform_info (OclPlatform *ocl,
+                       cl_platform_info param)
 {
-    if (dst != NULL)
-        *dst = src;
+    size_t size;
+    char *result;
+
+    OCL_CHECK_ERROR (clGetPlatformInfo (ocl->platform, param, 1, NULL, &size));
+    result = malloc (size);
+    OCL_CHECK_ERROR (clGetPlatformInfo (ocl->platform, param, size, result, NULL));
+    return result;
 }
 
 cl_program

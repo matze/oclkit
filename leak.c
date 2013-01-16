@@ -14,7 +14,7 @@ main (int argc, char const* argv[])
 
     cl_command_queue *cmd_queues;
 
-    ocl = ocl_new ();
+    ocl = ocl_new (CL_DEVICE_TYPE_ALL);
 
     if (ocl == NULL)
         return 1;

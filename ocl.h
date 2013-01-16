@@ -25,23 +25,26 @@ typedef struct OclPlatform OclPlatform;
 #define OCL_CHECK_ERROR(error) { \
     if ((error) != CL_SUCCESS) fprintf (stderr, "OpenCL error <%s:%i>: %s\n", __FILE__, __LINE__, ocl_strerr((error))); }
 
-OclPlatform *       ocl_new             (void);
-void                ocl_free            (OclPlatform    *ocl);
-cl_context          ocl_get_context     (OclPlatform    *ocl);
+OclPlatform *       ocl_new             (cl_device_type      type);
+void                ocl_free            (OclPlatform        *ocl);
+char *              ocl_get_platform_info
+                                        (OclPlatform        *ocl,
+                                         cl_platform_info    param);
+cl_context          ocl_get_context     (OclPlatform        *ocl);
 cl_program          ocl_create_program_from_file
-                                        (OclPlatform    *ocl,
-                                         const char     *filename,
-                                         const char     *options,
-                                         cl_int         *errcode);
+                                        (OclPlatform        *ocl,
+                                         const char         *filename,
+                                         const char         *options,
+                                         cl_int             *errcode);
 cl_program          ocl_create_program_from_source
-                                        (OclPlatform    *ocl,
-                                         const char     *source,
-                                         const char     *options,
-                                         cl_int         *errcode);
-int                 ocl_get_num_devices (OclPlatform    *ocl);
-cl_device_id *      ocl_get_devices     (OclPlatform    *ocl);
-cl_command_queue *  ocl_get_cmd_queues  (OclPlatform    *ocl);
-const char*         ocl_strerr          (int error);
+                                        (OclPlatform        *ocl,
+                                         const char         *source,
+                                         const char         *options,
+                                         cl_int             *errcode);
+int                 ocl_get_num_devices (OclPlatform        *ocl);
+cl_device_id *      ocl_get_devices     (OclPlatform        *ocl);
+cl_command_queue *  ocl_get_cmd_queues  (OclPlatform        *ocl);
+const char*         ocl_strerr          (int                 error);
 
 
 #endif
