@@ -10,9 +10,9 @@ make_kernel (cl_ulong local_size)
     char template[] = 
 "__kernel void foo(__global char *in)\n\
 {\n\
-    __local char shared[%llu];\n\
+    __local char shared[%ld];\n\
     int idx = get_global_id(0);\n\
-    if (idx < %llu)\n\
+    if (idx < %ld)\n\
         shared[idx] = in[idx];\n\
 }\0";
 
@@ -46,7 +46,7 @@ main (int argc, char const* argv[])
                                       &max_local_size,
                                       NULL));
 
-    printf ("Local mem size: %llu bytes\n", max_local_size);
+    printf ("Local mem size: %ld bytes\n", max_local_size);
 
     source = make_kernel (max_local_size);
     program = ocl_create_program_from_source (ocl, source, NULL, &errcode);
