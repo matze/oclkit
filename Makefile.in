@@ -8,6 +8,12 @@ BIN = leak maxlocal
 
 .PHONY: clean
 
+all: $(BIN)
+
+Makefile: Makefile.in
+	./configure
+	$(MAKE)
+
 leak: $(OBJ) leak.o
 	$(CC) -o $@ $(OBJ) leak.o $(LDFLAGS)
 
