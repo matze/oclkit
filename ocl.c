@@ -208,7 +208,7 @@ ocl_create_program_from_source (OclPlatform *ocl,
                                                 CL_PROGRAM_BUILD_LOG, LOG_SIZE,
                                                 (void*) log, NULL));
 
-        fprintf (stderr, "\n=== Build log ===%s\n\n", log);
+        fprintf (stderr, "\n** Error building program. Build log:\n%s\n", log);
         free (log);
         return NULL;
     }

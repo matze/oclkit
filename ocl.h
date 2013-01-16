@@ -23,7 +23,7 @@
 typedef struct OclPlatform OclPlatform;
 
 #define OCL_CHECK_ERROR(error) { \
-    if ((error) != CL_SUCCESS) fprintf (stderr, "OpenCL error <%s:%i>: %s", __FILE__, __LINE__, ocl_strerr((error))); }
+    if ((error) != CL_SUCCESS) fprintf (stderr, "OpenCL error <%s:%i>: %s\n", __FILE__, __LINE__, ocl_strerr((error))); }
 
 OclPlatform *       ocl_new             (void);
 void                ocl_free            (OclPlatform    *ocl);
