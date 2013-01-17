@@ -2,9 +2,9 @@ SRC = $(wildcard *.c)
 OBJ = ocl.o
 OPENCL_INCDIR = -I@OPENCL_INCDIR@
 OPENCL_LIBS = -lOpenCL
-CFLAGS = $(OPENCL_INCDIR) -Wall -Werror -std=c99
-LDFLAGS = $(OPENCL_LIBS)
-BIN = leak maxlocal
+CFLAGS = $(OPENCL_INCDIR) -Wall -Werror -std=c99 $(shell pkg-config --cflags glib-2.0)
+LDFLAGS = $(OPENCL_LIBS) $(shell pkg-config --libs glib-2.0)
+BIN = leak maxlocal regr
 
 .PHONY: clean
 
@@ -20,8 +20,11 @@ leak: $(OBJ) leak.o
 maxlocal: $(OBJ) maxlocal.o
 	$(CC) -o $@ $(OBJ) maxlocal.o $(LDFLAGS)
 
+regr: $(OBJ) regr.o
+	$(CC) -o $@ $(OBJ) regr.o $(LDFLAGS)
+
 %.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
-	rm -f $(OBJ) $(BIN) leak.o maxlocal.o
+	rm -f $(OBJ) $(BIN) leak.o maxlocal.o regr.o
