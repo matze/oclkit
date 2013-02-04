@@ -35,7 +35,7 @@ main (int argc, char const* argv[])
     char *source;
     size_t n_elements;
 
-    ocl = ocl_new (CL_DEVICE_TYPE_ALL);
+    ocl = ocl_new (CL_DEVICE_TYPE_ALL, 1);
 
     if (ocl == NULL)
         return 1;

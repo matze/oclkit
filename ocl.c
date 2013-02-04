@@ -26,6 +26,7 @@ struct OclPlatform {
     cl_uint              num_devices;
     cl_device_id        *devices;
     cl_command_queue    *cmd_queues;
+    int                  own_queues;
 };
 
 static const char* opencl_error_msgs[] = {
@@ -137,7 +138,8 @@ ocl_read_program (const char *filename)
 }
 
 OclPlatform *
-ocl_new (cl_device_type type)
+ocl_new (cl_device_type type,
+         int create_queues)
 {
     OclPlatform *ocl;
     cl_int errcode;
@@ -153,12 +155,17 @@ ocl_new (cl_device_type type)
     ocl->context = clCreateContext (NULL, ocl->num_devices, ocl->devices, NULL, NULL, &errcode);
     OCL_CHECK_ERROR (errcode);
 
-    ocl->cmd_queues = malloc (ocl->num_devices * sizeof(cl_command_queue));
+    if (create_queues) {
+        ocl->own_queues = 1;
+        ocl->cmd_queues = malloc (ocl->num_devices * sizeof(cl_command_queue));
 
-    for (int i = 0; i < ocl->num_devices; i++) {
-        ocl->cmd_queues[i] = clCreateCommandQueue (ocl->context, ocl->devices[i], 0, &errcode);
-        OCL_CHECK_ERROR (errcode);
+        for (int i = 0; i < ocl->num_devices; i++) {
+            ocl->cmd_queues[i] = clCreateCommandQueue (ocl->context, ocl->devices[i], 0, &errcode);
+            OCL_CHECK_ERROR (errcode);
+        }
     }
+    else
+        ocl->own_queues = 0;
 
     return ocl;
 }
@@ -166,13 +173,16 @@ ocl_new (cl_device_type type)
 void
 ocl_free (OclPlatform *ocl)
 {
-    for (int i = 0; i < ocl->num_devices; i++)
-        OCL_CHECK_ERROR (clReleaseCommandQueue (ocl->cmd_queues[i]));
+    if (ocl->own_queues) {
+        for (int i = 0; i < ocl->num_devices; i++)
+            OCL_CHECK_ERROR (clReleaseCommandQueue (ocl->cmd_queues[i]));
+
+        free (ocl->cmd_queues);
+    }
 
     OCL_CHECK_ERROR (clReleaseContext (ocl->context));
 
     free (ocl->devices);
-    free (ocl->cmd_queues);
     free (ocl);
 }
 
