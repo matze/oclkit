@@ -193,7 +193,7 @@ ocl_get_platform_info (OclPlatform *ocl,
     size_t size;
     char *result;
 
-    OCL_CHECK_ERROR (clGetPlatformInfo (ocl->platform, param, 1, NULL, &size));
+    OCL_CHECK_ERROR (clGetPlatformInfo (ocl->platform, param, 0, NULL, &size));
     result = malloc (size);
     OCL_CHECK_ERROR (clGetPlatformInfo (ocl->platform, param, size, result, NULL));
     return result;
