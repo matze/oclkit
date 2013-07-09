@@ -19,6 +19,7 @@
 #define OCL_H
 
 #include <CL/cl.h>
+#include <stdio.h>
 
 typedef struct OclPlatform OclPlatform;
 

@@ -5,7 +5,7 @@ noinst_LTLIBRARIES = libocl.la
 libocl_la_SOURCES = ocl.c ocl.h
 libocl_la_LIBADD = $(CL_LIBS)
 
-bin_PROGRAMS = info leak ptransfer regr
+bin_PROGRAMS = info leak ptransfer regr lut
 
 info_SOURCES = info.c
 info_CFLAGS = $(AM_CFLAGS)
@@ -22,3 +22,7 @@ ptransfer_LDADD = libocl.la $(GLIB_LIBS)
 regr_SOURCES = regr.c
 regr_CFLAGS = $(GLIB_CFLAGS) $(AM_CFLAGS)
 regr_LDADD = libocl.la $(GLIB_LIBS)
+
+lut_SOURCES = lut.c
+lut_CFLAGS = $(GLIB_CFLAGS) $(AM_CFLAGS)
+lut_LDADD = libocl.la $(GLIB_LIBS) -lm
