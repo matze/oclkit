@@ -4,7 +4,7 @@
 
 
 int
-main (int argc, char const* argv[])
+main (void)
 {
     OclPlatform *ocl;
     cl_context context;
@@ -37,7 +37,7 @@ main (int argc, char const* argv[])
     host_lut_result = g_malloc0 (SIZE_2);
     host_comp_result = g_malloc0 (SIZE_2);
 
-    for (int i = 0; i < N_ELEMENTS; i++) {
+    for (size_t i = 0; i < N_ELEMENTS; i++) {
         host_sin_lut[i] = sin (i);
         host_cos_lut[i] = cos (i);
     }

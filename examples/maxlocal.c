@@ -22,7 +22,7 @@ make_kernel (cl_ulong local_size)
 }
 
 int
-main (int argc, char const* argv[])
+main (void)
 {
     OclPlatform *ocl;
     cl_mem mem;

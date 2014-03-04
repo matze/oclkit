@@ -25,10 +25,7 @@ static void
 execute_kernel (Data *data,
                 int n_iterations)
 {
-    cl_int error;
     cl_event read_event;
-
-    OCL_CHECK_ERROR (error);
 
     read_event = NULL;
 
@@ -228,12 +225,10 @@ run_benchmark (SetupQueueFunc setup,
 }
 
 int
-main (int argc, char const* argv[])
+main (void)
 {
     OclPlatform *ocl;
     Data *data;
-    cl_int errcode;
-    cl_event event;
 
     ocl = ocl_new (CL_DEVICE_TYPE_ALL, 0);
 

@@ -127,14 +127,11 @@ show_device_info (cl_device_id device)
 }
 
 int
-main (int argc, char const* argv[])
+main (void)
 {
     OclPlatform *ocl;
-    cl_int errcode;
     cl_device_id *devices;
     int n_devices;
-
-    cl_command_queue *cmd_queues;
 
     ocl = ocl_new (CL_DEVICE_TYPE_ALL, 1);
 

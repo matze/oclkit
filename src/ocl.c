@@ -159,7 +159,7 @@ ocl_new (cl_device_type type,
         ocl->own_queues = 1;
         ocl->cmd_queues = malloc (ocl->num_devices * sizeof(cl_command_queue));
 
-        for (int i = 0; i < ocl->num_devices; i++) {
+        for (cl_uint i = 0; i < ocl->num_devices; i++) {
             ocl->cmd_queues[i] = clCreateCommandQueue (ocl->context, ocl->devices[i], 0, &errcode);
             OCL_CHECK_ERROR (errcode);
         }
@@ -174,7 +174,7 @@ void
 ocl_free (OclPlatform *ocl)
 {
     if (ocl->own_queues) {
-        for (int i = 0; i < ocl->num_devices; i++)
+        for (cl_uint i = 0; i < ocl->num_devices; i++)
             OCL_CHECK_ERROR (clReleaseCommandQueue (ocl->cmd_queues[i]));
 
         free (ocl->cmd_queues);
