@@ -1,10 +1,10 @@
-# oclkit, plain and stupid OpenCL helper
+## oclkit, plain and stupid OpenCL helper
 
 _oclkit_ is a small set of C functions, to avoid writing the same OpenCL boiler
 plate over and over again, yet keeping full control over executing OpenCL.
 
 
-## API
+### API
 
 * `ocl_new`: Create a new OpenCL platform instance with all devices initialized.
   Each device is assigned its own queue. The returned pointer is opaque and
@@ -22,12 +22,11 @@ plate over and over again, yet keeping full control over executing OpenCL.
   code is not `CL_SUCCESS`.
 
 
-## Running the leak sample
+### Running the samples
 
-Run the `configure` script to create a Makefile and `make` to build the `leak`
-binary.
+Run `make` in the top-level directory and change into `build/examples`.
 
 
-## License
+### License
 
 The code is licensed under GPL v3.
