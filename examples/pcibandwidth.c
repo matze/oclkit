@@ -106,11 +106,9 @@ measure_transfer_pinned (App *app, size_t size, gdouble *upload, gdouble *downlo
 
 void run (App *app)
 {
-    const int NUM_RUNS = 3;
-
     g_print ("# size in bytes  /  upload MB/s  / download MB/s  /  upload/pinned MB/s  /  download/pinned MB/s\n");
 
-#define NORMALIZE(x) (size / 1024. / 1024. / (x) / NUM_RUNS)
+#define NORMALIZE(x) (size / 1024. / 1024. / (x) / app->num_runs)
 
     for (size_t size = 256 * 1024; size < 64 * 1024 * 1024 + 1; size += 256 * 1024) {
         gdouble upload_normal = 0.0;
