@@ -73,7 +73,7 @@ setup_data (OclPlatform *ocl,
     Data *data;
     cl_int errcode;
 
-    data = malloc (sizeof (Data));
+    data = g_malloc0 (sizeof (Data));
 
     data->ocl = ocl;
 
@@ -89,8 +89,8 @@ setup_data (OclPlatform *ocl,
 
     data->n_elements = n_elements;
     data->size = n_elements * sizeof (float);
-    data->input = malloc (data->size);
-    data->output = malloc (data->size);
+    data->input = g_malloc0 (data->size);
+    data->output = g_malloc0 (data->size);
 
     data->in_mem = clCreateBuffer (ocl_get_context (ocl), CL_MEM_READ_ONLY,
                                    data->size, NULL, &errcode);
@@ -106,15 +106,15 @@ setup_data (OclPlatform *ocl,
 static void
 free_data (Data *data)
 {
-    free (data->input);
-    free (data->output);
+    g_free (data->input);
+    g_free (data->output);
 
     OCL_CHECK_ERROR (clReleaseMemObject (data->in_mem));
     OCL_CHECK_ERROR (clReleaseMemObject (data->out_mem));
     OCL_CHECK_ERROR (clReleaseKernel (data->kernel));
     OCL_CHECK_ERROR (clReleaseProgram (data->program));
 
-    free (data);
+    g_free (data);
 }
 
 static void

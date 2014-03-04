@@ -113,10 +113,10 @@ show_device_info (cl_device_id device)
     show_device_string ("  Version:\t%s\n", device, CL_DEVICE_VERSION);
     show_device_string ("  Extensions:\t%s\n\n", device, CL_DEVICE_EXTENSIONS);
 
-    show_device_scalar ("  MAX_MEM_ALLOC_SIZE:\t%lu bytes\n", device, CL_DEVICE_MAX_MEM_ALLOC_SIZE, cl_ulong);
+    show_device_scalar ("  MAX_MEM_ALLOC_SIZE:\t%llu bytes\n", device, CL_DEVICE_MAX_MEM_ALLOC_SIZE, cl_ulong);
     show_device_scalar ("  MAX_COMPUTE_UNITS:\t%i units\n", device, CL_DEVICE_MAX_COMPUTE_UNITS, cl_uint);
     show_device_scalar ("  MAX_WORK_GROUP_SIZE:\t%zu work items\n", device, CL_DEVICE_MAX_WORK_GROUP_SIZE, size_t);
-    show_device_scalar ("  LOCAL_MEM_SIZE:\t%lu bytes\n", device, CL_DEVICE_LOCAL_MEM_SIZE, cl_ulong);
+    show_device_scalar ("  LOCAL_MEM_SIZE:\t%llu bytes\n", device, CL_DEVICE_LOCAL_MEM_SIZE, cl_ulong);
 
     OCL_CHECK_ERROR (clGetDeviceInfo (device, CL_DEVICE_MAX_WORK_ITEM_SIZES, 3 * sizeof (cube), &cube, NULL));
     printf ("  MAX_WORK_ITEM_SIZES: (%zu, %zu, %zu)\n", cube[0], cube[1], cube[2]);
