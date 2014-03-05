@@ -21,6 +21,7 @@ measure_transfer_normal (App *app, size_t size, gdouble *upload, gdouble *downlo
 {
     cl_int errcode;
     cl_mem buffer;
+    cl_event event;
     char *array;
     GTimer *timer;
 
@@ -41,7 +42,9 @@ measure_transfer_normal (App *app, size_t size, gdouble *upload, gdouble *downlo
          * run-time */
 
         OCL_CHECK_ERROR (clSetKernelArg (app->kernel, 0, sizeof (cl_mem), &buffer));
-        OCL_CHECK_ERROR (clEnqueueNDRangeKernel (app->queue, app->kernel, 1, NULL, &size, NULL, 0, NULL, NULL));
+        OCL_CHECK_ERROR (clEnqueueNDRangeKernel (app->queue, app->kernel, 1, NULL, &size, NULL, 0, NULL, &event));
+        OCL_CHECK_ERROR (clWaitForEvents (1, &event));
+        OCL_CHECK_ERROR (clReleaseEvent (event));
 
         g_timer_start (timer);
         OCL_CHECK_ERROR (clEnqueueReadBuffer (app->queue, buffer, CL_TRUE, 0, size, array, 0, NULL, NULL));
