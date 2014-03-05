@@ -78,7 +78,9 @@ measure_transfer_pinned (App *app, size_t size, gdouble *upload, gdouble *downlo
 
         /* Should we do something here? */
 
-        OCL_CHECK_ERROR (clEnqueueUnmapMemObject (app->queue, buffer, array, 0, NULL, NULL));
+        OCL_CHECK_ERROR (clEnqueueUnmapMemObject (app->queue, buffer, array, 0, NULL, &event));
+        OCL_CHECK_ERROR (clWaitForEvents (1, &event));
+        OCL_CHECK_ERROR (clReleaseEvent (event));
         g_timer_stop (timer);
 
         *upload += g_timer_elapsed (timer, NULL);
@@ -97,7 +99,9 @@ measure_transfer_pinned (App *app, size_t size, gdouble *upload, gdouble *downlo
 
         /* Should we do something here? */
 
-        OCL_CHECK_ERROR (clEnqueueUnmapMemObject (app->queue, buffer, array, 0, NULL, NULL));
+        OCL_CHECK_ERROR (clEnqueueUnmapMemObject (app->queue, buffer, array, 0, NULL, &event));
+        OCL_CHECK_ERROR (clWaitForEvents (1, &event));
+        OCL_CHECK_ERROR (clReleaseEvent (event));
         g_timer_stop (timer);
         *download += g_timer_elapsed (timer, NULL);
     }
