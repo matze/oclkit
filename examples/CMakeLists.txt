@@ -3,7 +3,7 @@ pkg_check_modules(GLIB2 glib-2.0>=2.26)
 
 
 set(KERNELS "test.cl" "lut.cl")
-set(BINARIES "info" "leak" "maxlocal")
+set(BINARIES "leak" "maxlocal")
 set(DEPS m oclkit ${OPENCL_LIBRARIES})
 
 
