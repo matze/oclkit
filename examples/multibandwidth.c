@@ -145,7 +145,6 @@ void run (App *app)
     device_id = g_string_new (NULL);
     queues = ocl_get_cmd_queues (app->ocl);
     n_devices = ocl_get_num_devices (app->ocl);
-    n_devices = 2;
     n_sets = pow (2, n_devices);
     cvec = g_malloc0 (n_sets);
 
