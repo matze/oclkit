@@ -10,7 +10,13 @@ set(DEPS m oclkit ${OPENCL_LIBRARIES})
 if (GLIB2_FOUND)
     include_directories(${GLIB2_INCLUDE_DIRS})
     list(APPEND DEPS ${GLIB2_LIBRARIES})
-    list(APPEND BINARIES "lut" "ptransfer" "regr" "pcibandwidth")
+    list(APPEND BINARIES
+         "lut"
+         "multibandwidth"
+         "pcibandwidth"
+         "ptransfer"
+         "regr"
+    )
 endif ()
 
 
