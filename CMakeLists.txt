@@ -11,6 +11,7 @@ include_directories(
     )
 
 add_definitions("-std=c99 -Wall -Wextra -Werror -pedantic")
+add_definitions("-Wno-unused-parameter")
 
 add_subdirectory(src)
 add_subdirectory(examples)
