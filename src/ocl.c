@@ -103,7 +103,7 @@ transfer_error (cl_int src, cl_int *dst)
         *dst = src;
 }
 
-static char *
+char *
 ocl_read_program (const char *filename)
 {
     FILE *fp;

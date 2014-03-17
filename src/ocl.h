@@ -47,6 +47,6 @@ int                 ocl_get_num_devices (OclPlatform        *ocl);
 cl_device_id *      ocl_get_devices     (OclPlatform        *ocl);
 cl_command_queue *  ocl_get_cmd_queues  (OclPlatform        *ocl);
 const char*         ocl_strerr          (int                 error);
-
+char*               ocl_read_program    (const char         *filename);
 
 #endif
