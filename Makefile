@@ -1,7 +1,7 @@
-all: cmake
+all: build/
 	@cd build && make
 
-cmake: clean
+build/:
 	@mkdir -p build
 	@cd build && cmake ..
 
