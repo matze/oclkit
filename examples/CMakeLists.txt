@@ -7,27 +7,27 @@ set(KERNELS "callback.cl" "test.cl" "lut.cl")
 set(BINARIES "leak" "maxlocal")
 set(DEPS m oclkit ${OPENCL_LIBRARIES})
 
+set(GLIB_BINARIES "lut" "multibandwidth" "pcibandwidth"
+                  "ptransfer" "regr" "rectcopy")
+set(GOBJECT_BINARIES "callback")
 
 if (GLIB2_FOUND)
     include_directories(${GLIB2_INCLUDE_DIRS})
     list(APPEND DEPS ${GLIB2_LIBRARIES})
-    list(APPEND BINARIES
-         "lut"
-         "multibandwidth"
-         "pcibandwidth"
-         "ptransfer"
-         "regr"
-    )
+    list(APPEND BINARIES ${GLIB_BINARIES})
 
     if (GOBJECT2_FOUND)
-        list(APPEND BINARIES
-             "callback"
-        )
-
+        list(APPEND BINARIES ${GOBJECT_BINARIES})
         include_directories(${GOBJECT2_INCLUDE_DIRS})
         list(APPEND DEPS ${GOBJECT2_LIBRARIES})
+    else ()
+        message("--- Not building: ${GOBJECT_BINARIES}")
     endif ()
+    message("--- Building: ${BINARIES}")
+else ()
+    message("--- Not building: ${GLIB_BINARIES}")
 endif ()
+
 
 
 foreach (BINARY ${BINARIES})
