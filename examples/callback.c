@@ -285,7 +285,9 @@ main (void)
     app.context = ocl_get_context (ocl);
     app.queue = ocl_get_cmd_queues (ocl)[0];
 
+#if !GLIB_CHECK_VERSION(2, 36, 0)
     g_type_init ();
+#endif
 
     app.last = 1;
     app.callbacks = g_hash_table_new (g_direct_hash, g_direct_equal);
