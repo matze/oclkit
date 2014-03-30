@@ -3,7 +3,7 @@ pkg_check_modules(GLIB2 glib-2.0>=2.26)
 pkg_check_modules(GOBJECT2 gobject-2.0>=2.26)
 
 
-set(KERNELS "callback.cl" "test.cl" "lut.cl")
+set(KERNELS "check.cl" "callback.cl" "test.cl" "lut.cl")
 set(BINARIES "leak" "maxlocal")
 set(DEPS m oclkit ${OPENCL_LIBRARIES})
 
@@ -12,6 +12,7 @@ if (GLIB2_FOUND)
     include_directories(${GLIB2_INCLUDE_DIRS})
     list(APPEND DEPS ${GLIB2_LIBRARIES})
     list(APPEND BINARIES
+         "check"
          "lut"
          "multibandwidth"
          "pcibandwidth"
