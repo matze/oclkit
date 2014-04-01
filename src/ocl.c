@@ -218,16 +218,15 @@ ocl_create_program_from_source (OclPlatform *ocl,
     tmp_err = clBuildProgram (program, ocl->num_devices, ocl->devices, options, NULL, NULL);
 
     if (tmp_err != CL_SUCCESS) {
+        size_t log_size;
         char* log;
-        const int LOG_SIZE = 4096;
 
         transfer_error (tmp_err, errcode);
 
-        log = malloc (LOG_SIZE * sizeof(char));
-        OCL_CHECK_ERROR (clGetProgramBuildInfo (program, ocl->devices[0],
-                                                CL_PROGRAM_BUILD_LOG, LOG_SIZE,
-                                                (void*) log, NULL));
+        OCL_CHECK_ERROR (clGetProgramBuildInfo (program, ocl->devices[0], CL_PROGRAM_BUILD_LOG, 0, NULL, &log_size));
+        log = malloc (log_size * sizeof(char));
 
+        OCL_CHECK_ERROR (clGetProgramBuildInfo (program, ocl->devices[0], CL_PROGRAM_BUILD_LOG, log_size, log, NULL));
         fprintf (stderr, "\n** Error building program. Build log:\n%s\n", log);
         free (log);
         return NULL;
