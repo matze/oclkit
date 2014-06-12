@@ -29,6 +29,9 @@ typedef struct OclPlatform OclPlatform;
 OclPlatform *       ocl_new             (unsigned            platform,
                                          cl_device_type      type,
                                          int                 create_queues);
+OclPlatform *       ocl_new_from_args   (int                 argc,
+                                         const char **       argv);
+void                ocl_print_usage     (void);
 void                ocl_free            (OclPlatform        *ocl);
 char *              ocl_get_platform_info
                                         (OclPlatform        *ocl,

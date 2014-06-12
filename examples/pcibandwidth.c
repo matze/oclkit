@@ -136,7 +136,7 @@ void run (App *app)
 
 
 int
-main (void)
+main (int argc, const char **argv)
 {
     OclPlatform *ocl;
     cl_int errcode;
@@ -144,7 +144,7 @@ main (void)
     gchar device_name[256];
     App app;
 
-    ocl = ocl_new (1, CL_DEVICE_TYPE_ACCELERATOR, 1);
+    ocl = ocl_new_from_args (argc, argv);
     app.context = ocl_get_context (ocl);
     app.queue = ocl_get_cmd_queues (ocl)[0];
 

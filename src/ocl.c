@@ -17,7 +17,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <assert.h>
+#include <getopt.h>
 #include "ocl.h"
 
 struct OclPlatform {
@@ -190,9 +192,73 @@ ocl_new_cleanup:
     return NULL;
 }
 
+
+void
+ocl_print_usage (void)
+{
+    printf ("oclkit options\n"
+            "      --ocl-platform\tIndex of platform, starting with 0, to use\n"
+            "      --ocl-type\tDevice type: gpu, cpu or accelerator\n");
+}
+
+OclPlatform *
+ocl_new_from_args (int argc,
+                   const char **argv)
+{
+    int c;
+    unsigned platform = 0;
+
+    cl_device_type type = CL_DEVICE_TYPE_GPU;
+
+    static struct option options[] = {
+        { "ocl-platform",   required_argument, NULL, 'p' },
+        { "ocl-type",       required_argument, NULL, 't' },
+        { "help",           no_argument,       NULL, 'h' },
+        { NULL, 0, NULL, 0 }
+    };
+
+    while (1) {
+        int index = 0;
+
+        c = getopt_long (argc, (char **) argv, "p:d:t:h", options, &index);
+
+        if (c == -1)
+            break;
+
+        switch (c) {
+            case 'h':
+                ocl_print_usage ();
+                return NULL;
+            case 'p':
+                platform = atoi (optarg);
+                break;
+            case 't':
+                {
+                    int n = strlen (optarg);
+                    n = n > 10 ? 10 : n;    /* for accelerator */
+
+                    if (!strncmp (optarg, "gpu", n))
+                        type = CL_DEVICE_TYPE_GPU;
+                    else if (!strncmp (optarg, "cpu", n))
+                        type = CL_DEVICE_TYPE_CPU;
+                    else if (!strncmp (optarg, "accelerator", n))
+                        type = CL_DEVICE_TYPE_ACCELERATOR;
+                }
+                break;
+            default:
+                abort ();
+        }
+    }
+
+    return ocl_new (platform, type, 1);
+}
+
 void
 ocl_free (OclPlatform *ocl)
 {
+    if (ocl == NULL)
+        return;
+
     if (ocl->own_queues) {
         for (cl_uint i = 0; i < ocl->num_devices; i++)
             OCL_CHECK_ERROR (clReleaseCommandQueue (ocl->cmd_queues[i]));
