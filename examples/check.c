@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
     /* Check bug with mixed GPUs and more than two __constant parameters */
     kernels = read_kernel_names ("check.cl");
     
-    ocl = ocl_new (CL_DEVICE_TYPE_ALL, 0);
+    ocl = ocl_new (0, CL_DEVICE_TYPE_ALL, 0);
     print_check ("Initialization", errcode);
 
     program = ocl_create_program_from_file (ocl, "check.cl", NULL, &errcode);

@@ -230,7 +230,7 @@ main (void)
     OclPlatform *ocl;
     Data *data;
 
-    ocl = ocl_new (CL_DEVICE_TYPE_ALL, 0);
+    ocl = ocl_new (0, CL_DEVICE_TYPE_ALL, 0);
 
     if (ocl == NULL)
         return 1;

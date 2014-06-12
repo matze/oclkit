@@ -16,7 +16,7 @@ main (void)
     cl_command_queue *cmd_queues;
 
     timer = g_timer_new ();
-    ocl = ocl_new (CL_DEVICE_TYPE_ALL, 1);
+    ocl = ocl_new (0, CL_DEVICE_TYPE_ALL, 1);
     g_timer_stop (timer);
     g_print ("Creating context with devices and queues: %fs\n", g_timer_elapsed (timer, NULL));
 

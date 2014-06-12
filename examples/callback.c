@@ -278,7 +278,7 @@ main (void)
     cl_event event;
     size_t global_work_size = { 1000 };
 
-    ocl = ocl_new (CL_DEVICE_TYPE_GPU, 1);
+    ocl = ocl_new (0, CL_DEVICE_TYPE_GPU, 1);
 
     app.stop = FALSE;
     app.aux_source = g_string_new (NULL);

@@ -138,15 +138,28 @@ ocl_read_program (const char *filename)
 }
 
 OclPlatform *
-ocl_new (cl_device_type type,
+ocl_new (unsigned platform,
+         cl_device_type type,
          int create_queues)
 {
     OclPlatform *ocl;
     cl_int errcode;
+    cl_uint num_platforms;
+    cl_platform_id *platforms;
 
     ocl = malloc (sizeof(OclPlatform));
 
-    OCL_CHECK_ERROR (clGetPlatformIDs (1, &ocl->platform, NULL));
+    OCL_CHECK_ERROR (clGetPlatformIDs (0, NULL, &num_platforms));
+    platforms = malloc (sizeof (cl_platform_id) * num_platforms);
+
+    if (platform >= num_platforms) {
+        fprintf (stderr, "invalid platform %i out of %i platforms\n", platform, num_platforms);
+        goto ocl_new_cleanup;
+    }
+
+    OCL_CHECK_ERROR (clGetPlatformIDs (num_platforms, platforms, NULL));
+    ocl->platform = platforms[platform];
+
     OCL_CHECK_ERROR (clGetDeviceIDs (ocl->platform, type, 0, NULL, &ocl->num_devices));
 
     ocl->devices = malloc (ocl->num_devices * sizeof(cl_device_id));
@@ -167,7 +180,14 @@ ocl_new (cl_device_type type,
     else
         ocl->own_queues = 0;
 
+    free (platforms);
+
     return ocl;
+
+ocl_new_cleanup:
+    free (ocl);
+    free (platforms);
+    return NULL;
 }
 
 void
