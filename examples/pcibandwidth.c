@@ -141,11 +141,15 @@ main (void)
     OclPlatform *ocl;
     cl_int errcode;
     cl_program program;
+    gchar device_name[256];
     App app;
 
     ocl = ocl_new (CL_DEVICE_TYPE_GPU, 1);
     app.context = ocl_get_context (ocl);
     app.queue = ocl_get_cmd_queues (ocl)[0];
+
+    clGetDeviceInfo (ocl_get_devices (ocl)[0], CL_DEVICE_NAME, 256, device_name, NULL);
+    g_print ("# running on %s\n", device_name);
 
     program = ocl_create_program_from_source (ocl, source, NULL, &errcode);
     OCL_CHECK_ERROR (errcode);
