@@ -141,8 +141,7 @@ ocl_read_program (const char *filename)
 
 OclPlatform *
 ocl_new (unsigned platform,
-         cl_device_type type,
-         int create_queues)
+         cl_device_type type)
 {
     OclPlatform *ocl;
     cl_int errcode;
@@ -170,17 +169,7 @@ ocl_new (unsigned platform,
     ocl->context = clCreateContext (NULL, ocl->num_devices, ocl->devices, NULL, NULL, &errcode);
     OCL_CHECK_ERROR (errcode);
 
-    if (create_queues) {
-        ocl->own_queues = 1;
-        ocl->cmd_queues = malloc (ocl->num_devices * sizeof(cl_command_queue));
-
-        for (cl_uint i = 0; i < ocl->num_devices; i++) {
-            ocl->cmd_queues[i] = clCreateCommandQueue (ocl->context, ocl->devices[i], 0, &errcode);
-            OCL_CHECK_ERROR (errcode);
-        }
-    }
-    else
-        ocl->own_queues = 0;
+    ocl->own_queues = 0;
 
     free (platforms);
 
@@ -192,6 +181,30 @@ ocl_new_cleanup:
     return NULL;
 }
 
+OclPlatform *
+ocl_new_with_queues (unsigned platform,
+                     cl_device_type type,
+                     cl_command_queue_properties queue_properties)
+{
+    OclPlatform *ocl;
+    cl_int errcode;
+
+    ocl = ocl_new (platform, type);
+
+    if (ocl == NULL)
+        return NULL;
+
+    ocl->own_queues = 1;
+    ocl->cmd_queues = malloc (ocl->num_devices * sizeof(cl_command_queue));
+
+    for (cl_uint i = 0; i < ocl->num_devices; i++) {
+        ocl->cmd_queues[i] = clCreateCommandQueue (ocl->context, ocl->devices[i],
+                                                   queue_properties, &errcode);
+        OCL_CHECK_ERROR (errcode);
+    }
+
+    return ocl;
+}
 
 void
 ocl_print_usage (void)
@@ -203,7 +216,8 @@ ocl_print_usage (void)
 
 OclPlatform *
 ocl_new_from_args (int argc,
-                   const char **argv)
+                   const char **argv,
+                   cl_command_queue_properties queue_properties)
 {
     int c;
     unsigned platform = 0;
@@ -250,7 +264,7 @@ ocl_new_from_args (int argc,
         }
     }
 
-    return ocl_new (platform, type, 1);
+    return ocl_new_with_queues (platform, type, queue_properties);
 }
 
 void

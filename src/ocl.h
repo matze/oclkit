@@ -27,10 +27,15 @@ typedef struct OclPlatform OclPlatform;
     if ((error) != CL_SUCCESS) fprintf (stderr, "OpenCL error <%s:%i>: %s\n", __FILE__, __LINE__, ocl_strerr((error))); }
 
 OclPlatform *       ocl_new             (unsigned            platform,
+                                         cl_device_type      type);
+OclPlatform *       ocl_new_with_queues (unsigned            platform,
                                          cl_device_type      type,
-                                         int                 create_queues);
+                                         cl_command_queue_properties
+                                                             queue_properties);
 OclPlatform *       ocl_new_from_args   (int                 argc,
-                                         const char **       argv);
+                                         const char **       argv,
+                                         cl_command_queue_properties
+                                                             queue_properties);
 void                ocl_print_usage     (void);
 void                ocl_free            (OclPlatform        *ocl);
 char *              ocl_get_platform_info

@@ -144,7 +144,7 @@ main (int argc, const char **argv)
     gchar device_name[256];
     App app;
 
-    ocl = ocl_new_from_args (argc, argv);
+    ocl = ocl_new_from_args (argc, argv, 0);
     app.context = ocl_get_context (ocl);
     app.queue = ocl_get_cmd_queues (ocl)[0];
 

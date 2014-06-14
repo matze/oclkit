@@ -35,7 +35,7 @@ main (void)
     char *source;
     size_t n_elements;
 
-    ocl = ocl_new (0, CL_DEVICE_TYPE_ALL, 1);
+    ocl = ocl_new_with_queues (0, CL_DEVICE_TYPE_ALL, 0);
 
     if (ocl == NULL)
         return 1;

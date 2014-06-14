@@ -192,7 +192,7 @@ main (void)
     cl_program program;
     App app;
 
-    app.ocl = ocl_new (0, CL_DEVICE_TYPE_GPU, 1);
+    app.ocl = ocl_new_with_queues (0, CL_DEVICE_TYPE_GPU, 0);
     app.context = ocl_get_context (app.ocl);
 
     program = ocl_create_program_from_source (app.ocl, source, NULL, &errcode);
