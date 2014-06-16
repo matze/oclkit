@@ -13,6 +13,7 @@ if (GLIB2_FOUND)
     list(APPEND DEPS ${GLIB2_LIBRARIES})
     list(APPEND BINARIES
          "check"
+         "launch"
          "lut"
          "multibandwidth"
          "pcibandwidth"
