@@ -395,3 +395,23 @@ ocl_get_cmd_queues (OclPlatform *ocl)
     assert (ocl != NULL);
     return ocl->cmd_queues;
 }
+
+void
+ocl_get_event_times (cl_event event,
+                     cl_ulong *start,
+                     cl_ulong *end,
+                     cl_ulong *queued,
+                     cl_ulong *submitted)
+{
+    if (queued != NULL)
+        OCL_CHECK_ERROR (clGetEventProfilingInfo (event, CL_PROFILING_COMMAND_QUEUED, sizeof (cl_ulong), queued, NULL));
+
+    if (submitted != NULL)
+        OCL_CHECK_ERROR (clGetEventProfilingInfo (event, CL_PROFILING_COMMAND_SUBMIT, sizeof (cl_ulong), submitted, NULL));
+
+    if (start != NULL)
+        OCL_CHECK_ERROR (clGetEventProfilingInfo (event, CL_PROFILING_COMMAND_START, sizeof (cl_ulong), start, NULL));
+
+    if (end != NULL)
+        OCL_CHECK_ERROR (clGetEventProfilingInfo (event, CL_PROFILING_COMMAND_END, sizeof (cl_ulong), end, NULL));
+}
