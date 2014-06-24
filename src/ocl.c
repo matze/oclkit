@@ -214,15 +214,13 @@ ocl_print_usage (void)
             "      --ocl-type\tDevice type: gpu, cpu or accelerator\n");
 }
 
-OclPlatform *
-ocl_new_from_args (int argc,
-                   const char **argv,
-                   cl_command_queue_properties queue_properties)
+int
+ocl_read_args (int argc,
+               const char **argv,
+               unsigned int *platform,
+               cl_device_type *type)
 {
     int c;
-    unsigned platform = 0;
-
-    cl_device_type type = CL_DEVICE_TYPE_GPU;
 
     static struct option options[] = {
         { "ocl-platform",   required_argument, NULL, 'p' },
@@ -242,9 +240,9 @@ ocl_new_from_args (int argc,
         switch (c) {
             case 'h':
                 ocl_print_usage ();
-                return NULL;
+                return -1;
             case 'p':
-                platform = atoi (optarg);
+                *platform = atoi (optarg);
                 break;
             case 't':
                 {
@@ -252,17 +250,31 @@ ocl_new_from_args (int argc,
                     n = n > 10 ? 10 : n;    /* for accelerator */
 
                     if (!strncmp (optarg, "gpu", n))
-                        type = CL_DEVICE_TYPE_GPU;
+                        *type = CL_DEVICE_TYPE_GPU;
                     else if (!strncmp (optarg, "cpu", n))
-                        type = CL_DEVICE_TYPE_CPU;
+                        *type = CL_DEVICE_TYPE_CPU;
                     else if (!strncmp (optarg, "accelerator", n))
-                        type = CL_DEVICE_TYPE_ACCELERATOR;
+                        *type = CL_DEVICE_TYPE_ACCELERATOR;
                 }
                 break;
             default:
                 abort ();
         }
     }
+
+    return 0;
+}
+
+OclPlatform *
+ocl_new_from_args (int argc,
+                   const char **argv,
+                   cl_command_queue_properties queue_properties)
+{
+    unsigned platform = 0;
+    cl_device_type type = CL_DEVICE_TYPE_GPU;
+
+    if (ocl_read_args (argc, argv, &platform, &type))
+        return NULL;
 
     return ocl_new_with_queues (platform, type, queue_properties);
 }

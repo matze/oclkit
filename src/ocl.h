@@ -26,6 +26,10 @@ typedef struct OclPlatform OclPlatform;
 #define OCL_CHECK_ERROR(error) { \
     if ((error) != CL_SUCCESS) fprintf (stderr, "OpenCL error <%s:%i>: %s\n", __FILE__, __LINE__, ocl_strerr((error))); }
 
+int                 ocl_read_args       (int                 argc,
+                                         const char        **argv,
+                                         unsigned int       *platform,
+                                         cl_device_type     *type);
 OclPlatform *       ocl_new             (unsigned            platform,
                                          cl_device_type      type);
 OclPlatform *       ocl_new_with_queues (unsigned            platform,
