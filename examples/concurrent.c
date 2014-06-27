@@ -9,6 +9,7 @@ typedef struct {
     cl_mem *buffers;
     size_t work_size;
     int n_times;
+    char device_name[256];
 } App;
 
 
@@ -170,6 +171,15 @@ measure_multi_queue (App *app, FILE *stream, int n_kernels)
     free (events);
 }
 
+static FILE *
+open_file (App *app, const char *fname_fmt)
+{
+    char fname[256];
+
+    snprintf (fname, 256, fname_fmt, app->device_name);
+    return fopen(fname, "w");
+}
+
 static void
 run (App *app)
 {
@@ -179,16 +189,12 @@ run (App *app)
     cl_int errcode;
     app->work_size = 1024;
 
-    multi_stream = fopen ("multi-queue.txt", "w");
-    in_order_stream = fopen ("in-order-queue.txt", "w");
-    out_of_order_stream = fopen ("out-of-order-queue.txt", "w");
+    multi_stream = open_file (app, "multi-queue-%s.txt");
+    in_order_stream = open_file (app, "in-order-queue-%s.txt");
+    out_of_order_stream = open_file (app, "out-of-order-queue-%s.txt");
 
     for (int i = 2; i < 1024; i *= 2) {
         app->work_size = i;
-
-        /* fprintf (multi_stream, "\n%i\n", i); */
-        /* fprintf (out_of_order_stream, "\n%i\n", i); */
-        /* fprintf (in_order_stream, "\n%i\n", i); */
 
         for (int n_kernels = 2; n_kernels < 8; n_kernels++) {
             app->buffers = malloc (n_kernels * sizeof (cl_mem));
@@ -222,6 +228,15 @@ run (App *app)
     fclose (multi_stream);
 }
 
+static void
+sanitize (char *s, int n)
+{
+    for (int i = 0; i < n; i++) {
+        if (s[i] == ' ')
+            s[i] = '-';
+    }
+}
+
 int
 main (int argc, const char **argv)
 {
@@ -230,7 +245,6 @@ main (int argc, const char **argv)
     cl_device_type type;
     cl_int errcode;
     cl_program program;
-    char device_name[256];
     App app;
 
     platform = 0;
@@ -244,8 +258,10 @@ main (int argc, const char **argv)
     app.device = ocl_get_devices (ocl)[0];
     app.n_times = 1000;
 
-    clGetDeviceInfo (ocl_get_devices (ocl)[0], CL_DEVICE_NAME, 256, device_name, NULL);
-    printf ("# running on %s", device_name);
+    clGetDeviceInfo (ocl_get_devices (ocl)[0], CL_DEVICE_NAME, 256, app.device_name, NULL);
+    printf ("# running on %s", app.device_name);
+
+    sanitize (app.device_name, 256);
 
     program = ocl_create_program_from_source (ocl, source, NULL, &errcode);
     OCL_CHECK_ERROR (errcode);
