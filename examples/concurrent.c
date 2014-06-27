@@ -183,34 +183,43 @@ run (App *app)
     in_order_stream = fopen ("in-order-queue.txt", "w");
     out_of_order_stream = fopen ("out-of-order-queue.txt", "w");
 
-    for (int n_kernels = 2; n_kernels < 16; n_kernels++) {
-        app->buffers = malloc (n_kernels * sizeof (cl_mem));
-        app->work_size = 1024;
+    for (int i = 2; i < 1024; i *= 2) {
+        app->work_size = i;
 
-        for (int i = 0; i < n_kernels; i++) {
-            app->buffers[i] = clCreateBuffer (app->context, CL_MEM_READ_WRITE, 
-                                              app->work_size, NULL, &errcode);
-            OCL_CHECK_ERROR (errcode);
+        /* fprintf (multi_stream, "\n%i\n", i); */
+        /* fprintf (out_of_order_stream, "\n%i\n", i); */
+        /* fprintf (in_order_stream, "\n%i\n", i); */
+
+        for (int n_kernels = 2; n_kernels < 8; n_kernels++) {
+            app->buffers = malloc (n_kernels * sizeof (cl_mem));
+
+
+            for (int i = 0; i < n_kernels; i++) {
+                app->buffers[i] = clCreateBuffer (app->context, CL_MEM_READ_WRITE,
+                                                  app->work_size, NULL, &errcode);
+                OCL_CHECK_ERROR (errcode);
+            }
+
+            fprintf (out_of_order_stream, "\n%i %zu", n_kernels, app->work_size);
+            measure_out_of_order_queue (app, out_of_order_stream, n_kernels);
+
+            fprintf (in_order_stream, "\n%i %zu", n_kernels, app->work_size);
+            measure_in_order_queue (app, in_order_stream, n_kernels);
+
+            fprintf (multi_stream, "\n%i %zu", n_kernels, app->work_size);
+            measure_multi_queue (app, multi_stream, n_kernels);
+
+            for (int i = 0; i < n_kernels; i++) {
+                OCL_CHECK_ERROR (clReleaseMemObject (app->buffers[i]));
+            }
+
+            free (app->buffers);
         }
-
-        fprintf (out_of_order_stream, "\n%i", n_kernels);
-        measure_out_of_order_queue (app, out_of_order_stream, n_kernels);
-
-        fprintf (in_order_stream, "\n%i", n_kernels);
-        measure_in_order_queue (app, in_order_stream, n_kernels);
-
-        fprintf (multi_stream, "\n%i", n_kernels);
-        measure_multi_queue (app, multi_stream, n_kernels);
-
-        for (int i = 0; i < n_kernels; i++) {
-            OCL_CHECK_ERROR (clReleaseMemObject (app->buffers[i]));
-        }
-
-        free (app->buffers);
     }
 
     fclose (in_order_stream);
     fclose (out_of_order_stream);
+    fclose (multi_stream);
 }
 
 int
