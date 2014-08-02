@@ -18,7 +18,7 @@ main (int argc, const char **argv)
 {
     OclPlatform *ocl;
     cl_program program;
-    /* cl_device_id *devices; */
+    cl_device_id *devices;
     cl_command_queue *queues;
     cl_kernel kernels[2];
     cl_mem buffer;
@@ -43,22 +43,24 @@ main (int argc, const char **argv)
     OCL_CHECK_ERROR (errcode);
 
     num_devices = ocl_get_num_devices (ocl);
-    /* devices = ocl_get_devices (ocl); */
+    devices = ocl_get_devices (ocl);
     queues = ocl_get_cmd_queues (ocl);
 
     for (int i = 0; i < num_devices; i++) {
-        /* char name[256]; */
-        /* size_t min = 8; */
+        cl_kernel kernel;
+        size_t max_work_item_sizes[4];
+        size_t size[2];
         size_t max = 4096;
 
-        size_t size[2] = { 1021, 2048 };
-
-        /* for (int dim = 1; dim < 3; dim++) { */
         unsigned int local[4] = {0,0,0,0};
-        cl_kernel kernel;
 
         kernel = kernels[1];
-        /* kernel = kernels[dim - 1]; */
+
+        OCL_CHECK_ERROR (clGetDeviceInfo (devices[i], CL_DEVICE_MAX_WORK_ITEM_SIZES,
+                                          3 * sizeof (size_t), max_work_item_sizes, NULL));
+
+        printf ("device %i -> %zu %zu %zu\n", i,
+                max_work_item_sizes[0], max_work_item_sizes[1], max_work_item_sizes[2]);
 
         for (size_t size_x = 8; size_x < max; size_x += 8) {
             for (size_t size_y = 1; size_y < 1025; size_y *= 2) {
@@ -72,7 +74,7 @@ main (int argc, const char **argv)
                 OCL_CHECK_ERROR (clEnqueueReadBuffer (queues[i], buffer, CL_TRUE, 
                                                       0, buffer_size, local, 0, NULL, NULL));
 
-                printf ("%i %zu %zu %u %u\n", i, size_x, size_y, local[0], local[1]);
+                printf ("%i %4zu %4zu %4u %4u\n", i, size_x, size_y, local[0], local[1]);
             }
         }
 
