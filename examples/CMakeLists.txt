@@ -4,7 +4,7 @@ pkg_check_modules(GOBJECT2 gobject-2.0>=2.26)
 
 
 set(KERNELS "check.cl" "callback.cl" "test.cl" "lut.cl")
-set(BINARIES "double" "dump" "leak" "maxlocal" "perf-precision" "workgroup")
+set(BINARIES "claim" "double" "dump" "leak" "maxlocal" "perf-precision" "workgroup")
 set(DEPS m oclkit ${OPENCL_LIBRARIES})
 
 
