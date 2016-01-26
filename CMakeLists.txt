@@ -12,6 +12,7 @@ include_directories(
 
 add_definitions("-std=c99 -Wall -Wextra -Werror -pedantic")
 add_definitions("-Wno-unused-parameter")
+add_definitions("-DCL_USE_DEPRECATED_OPENCL_2_0_APIS")
 
 add_subdirectory(src)
 add_subdirectory(examples)
