@@ -8,18 +8,16 @@ main (int argc, const char **argv)
     cl_int errcode;
     cl_program program;
     const char *inname;
-    const char *outname;
     size_t asize;
     size_t *sizes;
     char **binaries;
 
     if (argc < 2) {
-        printf ("Usage: dump-opencl-binary KERNELS.cl [OUTPUT]\n");
+        printf ("Usage: dump-opencl-binary input.cl\n");
         exit (0);
     }
 
     inname = argv[1];
-    outname = argc == 3 ? argv[2] : "program";
 
     ocl = ocl_new (0, CL_DEVICE_TYPE_GPU);
     asize = sizeof (size_t) * ocl_get_num_devices (ocl);
@@ -40,7 +38,7 @@ main (int argc, const char **argv)
         char fname[256];
         FILE *fp;
 
-        snprintf (fname, 256, "%s.%i", outname, i);
+        snprintf (fname, 256, "%s.%i", inname, i);
         fp = fopen (fname, "wb");
         fwrite (binaries[0], sizes[i], 1, fp);
         fclose (fp);
