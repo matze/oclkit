@@ -19,7 +19,7 @@ typedef struct {
 
 typedef void (*SetupQueueFunc) (Data *data);
 
-static const int N_ITERATIONS = 50;
+static const int N_ITERATIONS = 200;
 
 static void
 execute_kernel (Data *data,
@@ -84,7 +84,7 @@ setup_data (OclPlatform *ocl,
     data->program = ocl_create_program_from_file (ocl, "test.cl", NULL, &errcode);
     OCL_CHECK_ERROR (errcode);
 
-    data->kernel = clCreateKernel (data->program, "run_sin", &errcode);
+    data->kernel = clCreateKernel (data->program, "noop", &errcode);
     OCL_CHECK_ERROR (errcode);
 
     data->n_elements = n_elements;
@@ -235,7 +235,7 @@ main (void)
     if (ocl == NULL)
         return 1;
 
-    data = setup_data (ocl, 4096 * 2048);
+    data = setup_data (ocl, 2048 * 2048);
 
     run_benchmark (setup_single_blocking_queue,
                    "Blocking queue    : %3.5fs\n", data);
