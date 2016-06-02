@@ -49,6 +49,12 @@ for submission and execution.
       wall clock         : 16.33144 us
 
 
+#### check-queue-impact
+
+Uses a single blocking, an out-of-order, two or three queues to write data,
+execute a kernel and read back data. The total
+
+
 #### test-profile-timer
 
 Outputs the queue profiling timer resolution for each device.
