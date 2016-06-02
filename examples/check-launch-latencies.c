@@ -11,16 +11,15 @@ static const char* source =
 
 
 static void
-get_event_times (cl_event event, unsigned long *submission_wait, unsigned long *execution)
+get_event_times (cl_event event, unsigned long *start_wait, unsigned long *execution)
 {
-    cl_ulong queued, submitted, start, end;
+    cl_ulong queued, start, end;
 
     OCL_CHECK_ERROR (clGetEventProfilingInfo (event, CL_PROFILING_COMMAND_QUEUED, sizeof (cl_ulong), &queued, NULL));
-    OCL_CHECK_ERROR (clGetEventProfilingInfo (event, CL_PROFILING_COMMAND_SUBMIT, sizeof (cl_ulong), &submitted, NULL));
     OCL_CHECK_ERROR (clGetEventProfilingInfo (event, CL_PROFILING_COMMAND_START, sizeof (cl_ulong), &start, NULL));
     OCL_CHECK_ERROR (clGetEventProfilingInfo (event, CL_PROFILING_COMMAND_END, sizeof (cl_ulong), &end, NULL));
 
-    *submission_wait = submitted - queued;
+    *start_wait = start - queued;
     *execution = end - start;
 }
 
@@ -82,9 +81,9 @@ main (int argc, const char **argv)
         OCL_CHECK_ERROR (clGetDeviceInfo (devices[i], CL_DEVICE_NAME, 256, name, NULL));
 
         g_print ("%s\n"
-                 "  wait for submission: %8.5f us\n"
-                 "  wait for execution : %8.5f us\n"
-                 "  wall clock         : %8.5f us\n",
+                 "  wait for start: %8.5f us\n"
+                 "  execution time: %8.5f us\n"
+                 "  wall clock    : %8.5f us\n",
                  name,
                  total_wait / ((double) NUM_RUNS) / 1000,
                  total_execution / ((double) NUM_RUNS) / 1000,
