@@ -16,7 +16,7 @@ main (int argc, const char **argv)
 
         OCL_CHECK_ERROR (clGetDeviceInfo (devices[i], CL_DEVICE_NAME, 256, name, NULL));
         OCL_CHECK_ERROR (clGetDeviceInfo (devices[i], CL_DEVICE_PROFILING_TIMER_RESOLUTION, sizeof(size_t), &resolution, NULL));
-        printf ("\"%s\" %zu\n", name, resolution);
+        printf ("%-30s: %zu ns\n", name, resolution);
     }
 
     ocl_free (ocl);
