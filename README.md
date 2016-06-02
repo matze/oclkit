@@ -1,30 +1,37 @@
 ## oclkit, plain and stupid OpenCL helper
 
 _oclkit_ is a small set of C functions, to avoid writing the same OpenCL boiler
-plate over and over again, yet keeping full control over executing OpenCL.
+plate over and over again, yet keeping full control over executing OpenCL. It
+also contains a set of binaries to check and test for the installed OpenCL
+runtime.
 
 
 ### API
 
-* `ocl_new`: Create a new OpenCL platform instance with all devices initialized.
-  Each device is assigned its own queue. The returned pointer is opaque and
-  should only be modified with the following functions.
-* `ocl_free`: Releases all resources except for programs created with
-  `ocl_get_program`.
-* `ocl_get_context`: Return the `cl_context` pointer
-* `ocl_get_num_devices`: Return the number of detected devices.
-* `ocl_get_devices`: Return array of devices.
-* `ocl_get_cmd_queues`: Return array of command queues.
-* `ocl_get_program`: Create program from source file. Release with
-  `clReleaseProgram`.
-* `ocl_strerr`: Return static C string of an OpenCL error code.
-* `OCL_CHECK_ERROR`: Check error code and print a message on `stderr` if error
-  code is not `CL_SUCCESS`.
+The API should be pretty self-explanatory by examining [ocl.h](https://github.com/matze/oclkit/blob/master/src/ocl.h).
+
+### Binaries
+
+Run `make` in the top-level directory and change into `build/examples`. Most
+binaries are compiled with command-line flags to chose the OpenCL platform and
+device type.
 
 
-### Running the samples
+#### test-profile-timer
 
-Run `make` in the top-level directory and change into `build/examples`.
+Outputs the queue profiling timer resolution for each device.
+
+    $ ./test-profile-timer
+
+    GeForce GTX TITAN Black
+      wait for submission:  2.88220 us
+      wait for execution :  7.48316 us
+      wall clock         : 22.12242 us
+
+    GeForce GTX 580
+      wait for submission:  2.38133 us
+      wait for execution :  4.08007 us
+      wall clock         : 16.33144 us
 
 
 ### License
