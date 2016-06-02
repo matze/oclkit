@@ -64,8 +64,8 @@ main (int argc, const char **argv)
 
             g_timer_start (timer);
             OCL_CHECK_ERROR (clEnqueueNDRangeKernel (queues[i], kernel, 
-                        1, NULL, &size, NULL,
-                        0, NULL, &event));
+                                                     1, NULL, &size, NULL,
+                                                     0, NULL, &event));
 
             clWaitForEvents (1, &event);
             g_timer_stop (timer);
@@ -81,11 +81,17 @@ main (int argc, const char **argv)
 
         OCL_CHECK_ERROR (clGetDeviceInfo (devices[i], CL_DEVICE_NAME, 256, name, NULL));
 
-        /* all times in nano seconds */
-        printf ("%s %f %f %f\n", name,
-                total_wait / ((double) NUM_RUNS),
-                total_execution / ((double) NUM_RUNS),
-                wall_clock / NUM_RUNS * 1000 * 1000 * 1000);
+        g_print ("%s\n"
+                 "  wait for submission: %8.5f us\n"
+                 "  wait for execution : %8.5f us\n"
+                 "  wall clock         : %8.5f us\n",
+                 name,
+                 total_wait / ((double) NUM_RUNS) / 1000,
+                 total_execution / ((double) NUM_RUNS) / 1000,
+                 wall_clock / NUM_RUNS * 1000 * 1000);
+
+        if (i < num_devices - 1)
+            g_print ("\n");
     }
 
     g_timer_destroy (timer);
