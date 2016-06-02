@@ -14,7 +14,7 @@ main (int argc, const char **argv)
     char **binaries;
 
     if (argc < 2) {
-        printf ("Usage: dump KERNELS.cl [OUTPUT]\n");
+        printf ("Usage: dump-opencl-binary KERNELS.cl [OUTPUT]\n");
         exit (0);
     }
 
