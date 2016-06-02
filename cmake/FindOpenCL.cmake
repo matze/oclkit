@@ -49,11 +49,13 @@ ELSE (APPLE)
             # Unix style platforms
             FIND_LIBRARY(OPENCL_LIBRARIES OpenCL
               ENV LD_LIBRARY_PATH
+              /usr/local/cuda/lib64
               /usr/lib/nvidia-current
               /usr/lib64/nvidia
               /opt/nvidia-current
               /opt/AMDAPP/lib
               /opt/AMDAPP/lib/x86_64
+              /opt/AMDAPPSDK-3.0/lib/x86_64
             )
 
             GET_FILENAME_COMPONENT(OPENCL_LIB_DIR ${OPENCL_LIBRARIES} PATH)
