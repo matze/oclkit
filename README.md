@@ -17,11 +17,26 @@ binaries are compiled with command-line flags to chose the OpenCL platform and
 device type.
 
 
-#### test-profile-timer
+#### check-infrastructure-times
 
-Outputs the queue profiling timer resolution for each device.
+Measures the time for typical boilerplate operations such as `clCreateContext`,
+`clBuildProgram` etc.
 
-    $ ./test-profile-timer
+    $ ./check-infrastructure-times
+
+    Create context: 0.150983 s
+    Build program : 0.002060 s
+    Create kernel : 0.000004 s
+    Create buffer : 0.000003 s
+    Cleanup       : 0.061502 s
+
+
+#### check-launch-latencies
+
+Runs a dummy kernel and measures the OpenCL profiling times and wall clock time
+for submission and execution.
+
+    $ ./check-launch-latencies
 
     GeForce GTX TITAN Black
       wait for submission:  2.88220 us
@@ -32,6 +47,42 @@ Outputs the queue profiling timer resolution for each device.
       wait for submission:  2.38133 us
       wait for execution :  4.08007 us
       wall clock         : 16.33144 us
+
+
+#### test-profile-timer
+
+Outputs the queue profiling timer resolution for each device.
+
+    $ ./test-profile-timer
+
+    GeForce GTX TITAN Black       : 1000 ns
+    GeForce GTX 580               : 1000 ns
+
+
+#### test-double-flags
+
+Outputs the double extension flags for each device.
+
+    $ ./test-double-flags
+
+
+    GeForce GTX TITAN Black
+      cl_khr_fp64 = 1
+      cl_amd_fp64 = 0
+
+    GeForce GTX 580
+      cl_khr_fp64 = 1
+      cl_amd_fp64 = 0
+
+
+#### dump-opencl-binary
+
+Outputs the compiled binary (which might be PTX assembly for NVIDIA GPUs) for
+each device by appending a counter, i.e.
+
+  $ ./dump-opencl-binary test.cl
+
+Generates output files `test.cl.0`, `.test.cl.1` etc.
 
 
 ### License

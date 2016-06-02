@@ -64,8 +64,8 @@ main (int argc, const char **argv)
         OCL_CHECK_ERROR (clEnqueueReadBuffer (queue, buffer, CL_TRUE, 0, 1, &flags, 0, NULL, NULL));
 
         printf ("%s\n"
-                " cl_khr_fp64 = %i\n"
-                " cl_amd_fp64 = %i\n", name, flags & (1 << 0), (flags & (1 << 1)) >> 1);
+                "  cl_khr_fp64 = %i\n"
+                "  cl_amd_fp64 = %i\n", name, flags & (1 << 0), (flags & (1 << 1)) >> 1);
 
         if (i < num_devices - 1)
             printf ("\n");
