@@ -237,10 +237,14 @@ main (void)
 
     data = setup_data (ocl, 4096 * 2048);
 
-    run_benchmark (setup_single_blocking_queue, "Single blocking queue: %fs\n", data);
-    run_benchmark (setup_ooo_queue, "Single out-of-order queue: %fs\n", data);
-    run_benchmark (setup_two_queues, "Two queues: %fs\n", data);
-    run_benchmark (setup_three_queues, "Three queues: %fs\n", data);
+    run_benchmark (setup_single_blocking_queue,
+                   "Blocking queue    : %3.5fs\n", data);
+    run_benchmark (setup_ooo_queue,
+                   "Out-of-order queue: %3.5fs\n", data);
+    run_benchmark (setup_two_queues,
+                   "Two queues        : %3.5fs\n", data);
+    run_benchmark (setup_three_queues,
+                   "Three queues      : %3.5fs\n", data);
 
     free_data (data);
     ocl_free (ocl);
