@@ -240,7 +240,7 @@ ocl_read_args (int argc,
         switch (c) {
             case 'h':
                 ocl_print_usage ();
-                return -1;
+                exit (0);
             case 'p':
                 *platform = atoi (optarg);
                 break;
