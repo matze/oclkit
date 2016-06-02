@@ -27,6 +27,7 @@ main (int argc, const char **argv)
     cl_int errcode;
     cl_mem buffer;
     int flags;
+    int num_devices;
     size_t work_size = 1;
     unsigned int platform;
 
@@ -38,30 +39,41 @@ main (int argc, const char **argv)
 
     ocl = ocl_new (platform, type);
     context = ocl_get_context (ocl);
-    device = ocl_get_devices (ocl)[0];
+    num_devices = ocl_get_num_devices (ocl);
 
-    queue = clCreateCommandQueue (context, device, 0, &errcode);
-    OCL_CHECK_ERROR (errcode);
+    for (int i = 0; i < num_devices; i++) {
+        static char name[256];
 
-    program = ocl_create_program_from_source (ocl, source, NULL, &errcode);
-    OCL_CHECK_ERROR (errcode);
+        device = ocl_get_devices (ocl)[i];
+        OCL_CHECK_ERROR (clGetDeviceInfo (device, CL_DEVICE_NAME, 256, name, NULL));
 
-    kernel = clCreateKernel (program, "test", &errcode);
-    OCL_CHECK_ERROR (errcode);
+        queue = clCreateCommandQueue (context, device, 0, &errcode);
+        OCL_CHECK_ERROR (errcode);
 
-    buffer = clCreateBuffer (context, CL_MEM_READ_WRITE, sizeof (cl_int), NULL, &errcode);
-    OCL_CHECK_ERROR (errcode);
+        program = ocl_create_program_from_source (ocl, source, NULL, &errcode);
+        OCL_CHECK_ERROR (errcode);
 
-    OCL_CHECK_ERROR (clSetKernelArg (kernel, 0, sizeof (cl_mem), &buffer));
-    OCL_CHECK_ERROR (clEnqueueNDRangeKernel (queue, kernel, 1, NULL, &work_size, NULL, 0, NULL, NULL));
-    OCL_CHECK_ERROR (clEnqueueReadBuffer (queue, buffer, CL_TRUE, 0, 1, &flags, 0, NULL, NULL));
+        kernel = clCreateKernel (program, "test", &errcode);
+        OCL_CHECK_ERROR (errcode);
 
-    printf ("cl_khr_fp64 = %i\n", flags & (1 << 0));
-    printf ("cl_amd_fp64 = %i\n", flags & (1 << 1));
+        buffer = clCreateBuffer (context, CL_MEM_READ_WRITE, sizeof (cl_int), NULL, &errcode);
+        OCL_CHECK_ERROR (errcode);
 
-    OCL_CHECK_ERROR (clReleaseMemObject (buffer));
-    OCL_CHECK_ERROR (clReleaseKernel (kernel));
-    OCL_CHECK_ERROR (clReleaseProgram (program));
+        OCL_CHECK_ERROR (clSetKernelArg (kernel, 0, sizeof (cl_mem), &buffer));
+        OCL_CHECK_ERROR (clEnqueueNDRangeKernel (queue, kernel, 1, NULL, &work_size, NULL, 0, NULL, NULL));
+        OCL_CHECK_ERROR (clEnqueueReadBuffer (queue, buffer, CL_TRUE, 0, 1, &flags, 0, NULL, NULL));
+
+        printf ("%s\n"
+                " cl_khr_fp64 = %i\n"
+                " cl_amd_fp64 = %i\n", name, flags & (1 << 0), (flags & (1 << 1)) >> 1);
+
+        if (i < num_devices - 1)
+            printf ("\n");
+
+        OCL_CHECK_ERROR (clReleaseMemObject (buffer));
+        OCL_CHECK_ERROR (clReleaseKernel (kernel));
+        OCL_CHECK_ERROR (clReleaseProgram (program));
+    }
 
     ocl_free (ocl);
 }
