@@ -17,7 +17,7 @@ typedef struct {
     cl_mem out_mem;
 } Data;
 
-typedef void (*SetupQueueFunc) (Data *data);
+typedef void (*SetupQueueFunc) (Data *data, cl_device_id device);
 
 static const int N_ITERATIONS = 200;
 
@@ -144,25 +144,22 @@ teardown_queues (Data *data)
 }
 
 static void
-setup_single_blocking_queue (Data *data)
+setup_single_blocking_queue (Data *data, cl_device_id device)
 {
     cl_int errcode;
 
-    data->compute_queue = clCreateCommandQueue (ocl_get_context (data->ocl),
-                                                ocl_get_devices (data->ocl)[0],
-                                                0, &errcode);
+    data->compute_queue = clCreateCommandQueue (ocl_get_context (data->ocl), device, 0, &errcode);
     OCL_CHECK_ERROR (errcode);
     data->write_queue = data->compute_queue;
     data->read_queue = data->compute_queue;
 }
 
 static void
-setup_ooo_queue (Data *data)
+setup_ooo_queue (Data *data, cl_device_id device)
 {
     cl_int errcode;
 
-    data->compute_queue = clCreateCommandQueue (ocl_get_context (data->ocl),
-                                                ocl_get_devices (data->ocl)[0],
+    data->compute_queue = clCreateCommandQueue (ocl_get_context (data->ocl), device,
                                                 CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE, 
                                                 &errcode);
     OCL_CHECK_ERROR (errcode);
@@ -171,51 +168,42 @@ setup_ooo_queue (Data *data)
 }
 
 static void
-setup_two_queues (Data *data)
+setup_two_queues (Data *data, cl_device_id device)
 {
     cl_int errcode;
 
-    data->compute_queue = clCreateCommandQueue (ocl_get_context (data->ocl),
-                                                ocl_get_devices (data->ocl)[0],
-                                                0, &errcode);
+    data->compute_queue = clCreateCommandQueue (ocl_get_context (data->ocl), device, 0, &errcode);
     OCL_CHECK_ERROR (errcode);
 
-    data->write_queue = clCreateCommandQueue (ocl_get_context (data->ocl),
-                                              ocl_get_devices (data->ocl)[0],
-                                              0, &errcode);
+    data->write_queue = clCreateCommandQueue (ocl_get_context (data->ocl), device, 0, &errcode);
     OCL_CHECK_ERROR (errcode);
 
     data->read_queue = data->write_queue;
 }
 
 static void
-setup_three_queues (Data *data)
+setup_three_queues (Data *data, cl_device_id device)
 {
     cl_int errcode;
 
-    data->compute_queue = clCreateCommandQueue (ocl_get_context (data->ocl),
-                                                ocl_get_devices (data->ocl)[0],
-                                                0, &errcode);
+    data->compute_queue = clCreateCommandQueue (ocl_get_context (data->ocl), device, 0, &errcode);
     OCL_CHECK_ERROR (errcode);
 
-    data->write_queue = clCreateCommandQueue (ocl_get_context (data->ocl),
-                                              ocl_get_devices (data->ocl)[0],
-                                              0, &errcode);
+    data->write_queue = clCreateCommandQueue (ocl_get_context (data->ocl), device, 0, &errcode);
     OCL_CHECK_ERROR (errcode);
 
-    data->read_queue = clCreateCommandQueue (ocl_get_context (data->ocl),
-                                             ocl_get_devices (data->ocl)[0],
-                                             0, &errcode);
+    data->read_queue = clCreateCommandQueue (ocl_get_context (data->ocl), device, 0, &errcode);
 }
 
 static void
 run_benchmark (SetupQueueFunc setup,
                const char *fmt,
-               Data *data)
+               Data *data,
+               cl_device_id device)
 {
     GTimer *timer;
 
-    setup (data);
+    setup (data, device);
     timer = g_timer_new ();
     execute_kernel (data, N_ITERATIONS);
     g_timer_stop (timer);
@@ -229,6 +217,8 @@ main (void)
 {
     OclPlatform *ocl;
     Data *data;
+    cl_device_id *devices;
+    int num_devices;
 
     ocl = ocl_new (0, CL_DEVICE_TYPE_ALL);
 
@@ -236,15 +226,28 @@ main (void)
         return 1;
 
     data = setup_data (ocl, 2048 * 2048);
+    num_devices = ocl_get_num_devices (ocl);
+    devices = ocl_get_devices (ocl);
 
-    run_benchmark (setup_single_blocking_queue,
-                   "Blocking queue    : %3.5fs\n", data);
-    run_benchmark (setup_ooo_queue,
-                   "Out-of-order queue: %3.5fs\n", data);
-    run_benchmark (setup_two_queues,
-                   "Two queues        : %3.5fs\n", data);
-    run_benchmark (setup_three_queues,
-                   "Three queues      : %3.5fs\n", data);
+    for (int i = 0; i < num_devices; i++) {
+        char name[256];
+
+        OCL_CHECK_ERROR (clGetDeviceInfo (devices[i], CL_DEVICE_NAME, 256, name, NULL));
+
+        printf ("%s\n", name);
+
+        run_benchmark (setup_single_blocking_queue,
+                       "  Blocking queue    : %3.5fs\n", data, devices[i]);
+        run_benchmark (setup_ooo_queue,
+                       "  Out-of-order queue: %3.5fs\n", data, devices[i]);
+        run_benchmark (setup_two_queues,
+                       "  Two queues        : %3.5fs\n", data, devices[i]);
+        run_benchmark (setup_three_queues,
+                       "  Three queues      : %3.5fs\n", data, devices[i]);
+
+        if (i < num_devices - 1)
+            g_print ("\n");
+    }
 
     free_data (data);
     ocl_free (ocl);
