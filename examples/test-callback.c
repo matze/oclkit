@@ -238,7 +238,11 @@ start_listening (App *app)
                                           app->param_size, (gpointer) app->param_host_data, &errcode);
     OCL_CHECK_ERROR (errcode);
 
+#if !(GLIB_CHECK_VERSION (2, 32, 0))
+    app->listener = g_thread_create ((GThreadFunc) listen, app, TRUE, NULL);
+#else
     app->listener = g_thread_new ("listen", (GThreadFunc) listen, app);
+#endif
 }
 
 static void
