@@ -52,10 +52,17 @@ main (int argc, const char **argv)
         char name[256];
         cl_event event;
         size_t size = 16;
+        const int NUM_WARMUP = 10;
         const int NUM_RUNS = 50000;
         unsigned long total_wait = 0;
         unsigned long total_execution = 0;
         double wall_clock = 0.0;
+
+        for (int r = 0; r < NUM_WARMUP; r++) {
+            OCL_CHECK_ERROR (clEnqueueNDRangeKernel (queues[i], kernel, 1, NULL, &size, NULL, 0, NULL, &event));
+            OCL_CHECK_ERROR (clWaitForEvents (1, &event));
+            OCL_CHECK_ERROR (clReleaseEvent (event));
+        }
 
         for (int r = 0; r < NUM_RUNS; r++) {
             unsigned long wait;
@@ -72,7 +79,7 @@ main (int argc, const char **argv)
             wall_clock += g_timer_elapsed (timer, NULL);
 
             get_event_times (event, &wait, &execution);
-            clReleaseEvent (event);
+            OCL_CHECK_ERROR (clReleaseEvent (event));
 
             total_wait += wait;
             total_execution += execution;
