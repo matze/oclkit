@@ -21,6 +21,7 @@ if (GLIB2_FOUND)
          "check-concurrent-queues"
          "check-infrastructure-times"
          "check-launch-latencies"
+         "check-launch-latencies-chained"
          "check-pci-bandwidth"
          "check-queue-impact"
          "test-regressions"
