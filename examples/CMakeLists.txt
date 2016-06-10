@@ -22,6 +22,7 @@ if (GLIB2_FOUND)
          "check-infrastructure-times"
          "check-launch-latencies"
          "check-launch-latencies-chained"
+         "check-max-allocation"
          "check-pci-bandwidth"
          "check-queue-impact"
          "test-regressions"
