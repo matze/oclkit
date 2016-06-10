@@ -32,6 +32,7 @@ main (int argc, const char **argv)
         int could_write;
         int could_read;
         double alloc_time;
+        double warmup_time;
         double write_time;
         double read_time;
 
@@ -54,6 +55,11 @@ main (int argc, const char **argv)
             g_timer_start (timer);
             err = clEnqueueWriteBuffer (queues[i], mem, CL_TRUE, 0, real_alloc_size, data, 0, NULL, NULL);
             g_timer_stop (timer);
+            warmup_time = g_timer_elapsed (timer, NULL);
+
+            g_timer_start (timer);
+            err = clEnqueueWriteBuffer (queues[i], mem, CL_TRUE, 0, real_alloc_size, data, 0, NULL, NULL);
+            g_timer_stop (timer);
             write_time = g_timer_elapsed (timer, NULL);
             could_write = err == CL_SUCCESS;
 
@@ -70,14 +76,14 @@ main (int argc, const char **argv)
                  "  CL_DEVICE_GLOBAL_MEM_SIZE    : %-11lu B (%3.2f MB)\n"
                  "  CL_DEVICE_MAX_MEM_ALLOC_SIZE : %-11lu B (%3.2f MB, %3.1f%%)\n"
                  "  Could allocate               : %s (%3.5f s)\n"
-                 "  Could write                  : %s (%3.5f s, %3.2f MB/s)\n"
+                 "  Could write                  : %s (%3.5f s, %3.2f MB/s, warm up: %3.5fs)\n"
                  "  Could read                   : %s (%3.5f s, %3.2f MB/s)\n",
                  name,
                  global_mem_size, global_mem_size / 1024. / 1024.,
                  max_mem_alloc_size, max_mem_alloc_size / 1024. / 1024.,
                  ((double) max_mem_alloc_size) / global_mem_size * 100,
                  bools[could_allocate], alloc_time,
-                 bools[could_write], write_time, real_alloc_size / write_time / 1024. / 1024.,
+                 bools[could_write], write_time, real_alloc_size / write_time / 1024. / 1024., warmup_time,
                  bools[could_read], read_time, real_alloc_size / read_time / 1024. / 1024.);
 
         if (i < num_devices - 1)
