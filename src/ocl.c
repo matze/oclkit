@@ -139,12 +139,10 @@ ocl_read_program (const char *filename)
     return buffer;
 }
 
-OclPlatform *
-ocl_new (unsigned platform,
-         cl_device_type type)
+static OclPlatform *
+create_platform_and_devices (unsigned platform, cl_device_type type)
 {
     OclPlatform *ocl;
-    cl_int errcode;
     cl_uint num_platforms;
     cl_platform_id *platforms;
 
@@ -166,19 +164,32 @@ ocl_new (unsigned platform,
     ocl->devices = malloc (ocl->num_devices * sizeof(cl_device_id));
     OCL_CHECK_ERROR (clGetDeviceIDs (ocl->platform, type, ocl->num_devices, ocl->devices, NULL));
 
-    ocl->context = clCreateContext (NULL, ocl->num_devices, ocl->devices, NULL, NULL, &errcode);
-    OCL_CHECK_ERROR (errcode);
-
-    ocl->own_queues = 0;
-
     free (platforms);
-
     return ocl;
 
 ocl_new_cleanup:
     free (ocl);
     free (platforms);
     return NULL;
+}
+
+OclPlatform *
+ocl_new (unsigned platform,
+         cl_device_type type)
+{
+    OclPlatform *ocl;
+    cl_int errcode;
+
+    ocl = create_platform_and_devices (platform, type);
+
+    if (ocl == NULL)
+        return NULL;
+
+    ocl->context = clCreateContext (NULL, ocl->num_devices, ocl->devices, NULL, NULL, &errcode);
+    OCL_CHECK_ERROR (errcode);
+
+    ocl->own_queues = 0;
+    return ocl;
 }
 
 OclPlatform *
@@ -204,6 +215,33 @@ ocl_new_with_queues (unsigned platform,
     }
 
     return ocl;
+}
+
+OclPlatform *
+ocl_new_from_args (int argc,
+                   const char **argv,
+                   cl_command_queue_properties queue_properties)
+{
+    unsigned platform = 0;
+    cl_device_type type = CL_DEVICE_TYPE_GPU;
+
+    if (ocl_read_args (argc, argv, &platform, &type))
+        return NULL;
+
+    return ocl_new_with_queues (platform, type, queue_properties);
+}
+
+OclPlatform *
+ocl_new_from_args_bare (int argc,
+                        const char **argv)
+{
+    unsigned platform = 0;
+    cl_device_type type = CL_DEVICE_TYPE_GPU;
+
+    if (ocl_read_args (argc, argv, &platform, &type))
+        return NULL;
+
+    return create_platform_and_devices (platform, type);
 }
 
 void
@@ -265,20 +303,6 @@ ocl_read_args (int argc,
     return 0;
 }
 
-OclPlatform *
-ocl_new_from_args (int argc,
-                   const char **argv,
-                   cl_command_queue_properties queue_properties)
-{
-    unsigned platform = 0;
-    cl_device_type type = CL_DEVICE_TYPE_GPU;
-
-    if (ocl_read_args (argc, argv, &platform, &type))
-        return NULL;
-
-    return ocl_new_with_queues (platform, type, queue_properties);
-}
-
 void
 ocl_free (OclPlatform *ocl)
 {
@@ -292,7 +316,8 @@ ocl_free (OclPlatform *ocl)
         free (ocl->cmd_queues);
     }
 
-    OCL_CHECK_ERROR (clReleaseContext (ocl->context));
+    if (ocl->context != NULL)
+        OCL_CHECK_ERROR (clReleaseContext (ocl->context));
 
     free (ocl->devices);
     free (ocl);
