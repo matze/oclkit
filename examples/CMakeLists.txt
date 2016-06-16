@@ -18,6 +18,7 @@ if (GLIB2_FOUND)
     include_directories(${GLIB2_INCLUDE_DIRS})
     list(APPEND DEPS ${GLIB2_LIBRARIES})
     list(APPEND BINARIES
+         "check-allocation-times"
          "check-concurrent-queues"
          "check-infrastructure-times"
          "check-launch-latencies"
