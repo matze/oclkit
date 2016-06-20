@@ -101,11 +101,9 @@ main (int argc, const char **argv)
         g_timer_start (timer);
 
         for (int r = 0; r < NUM_RUNS; r++) {
-            int n_previous_events = r == 0 ? 0 : 1;
-            cl_event previous_event = r == 0 ? NULL : events[r-1];
             OCL_CHECK_ERROR (clEnqueueNDRangeKernel (queues[i], kernel, 
                                                      1, NULL, &size, NULL,
-                                                     n_previous_events, &previous_event, &events[r]));
+                                                     r == 0 ? 0 : 1, r == 0 ? NULL : &events[r-1], &events[r]));
         }
 
         OCL_CHECK_ERROR (clWaitForEvents (1, &events[NUM_RUNS - 1]));
