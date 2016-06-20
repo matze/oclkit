@@ -67,7 +67,7 @@ main (int argc, const char **argv)
     int num_devices;
     GTimer *timer;
     cl_event *events;
-    const int NUM_RUNS = 50000;
+    const int NUM_RUNS = 100;
 
     ocl = ocl_new_from_args (argc, argv, CL_QUEUE_PROFILING_ENABLE);
 
