@@ -10,7 +10,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     )
 
-add_definitions("-std=c99 -Wall -Wextra -Werror -pedantic")
+add_definitions("-std=c99 -Wall -Wextra -pedantic")
 add_definitions("-Wno-unused-parameter")
 add_definitions("-DCL_USE_DEPRECATED_OPENCL_2_0_APIS")
 
