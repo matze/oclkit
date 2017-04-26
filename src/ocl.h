@@ -21,6 +21,10 @@
 #include <CL/cl.h>
 #include <stdio.h>
 
+#include "AOCL_Utils.h"
+
+using namespace aocl_utils;
+
 typedef struct OclPlatform OclPlatform;
 
 #define OCL_CHECK_ERROR(error) { \
@@ -59,6 +63,13 @@ cl_program          ocl_create_program_from_source
                                          const char         *source,
                                          const char         *options,
                                          cl_int             *errcode);
+cl_program          ocl_create_program_from_binary
+                                        (OclPlatform        *ocl,
+                                         const char         *source,
+                                         cl_int             *errcode);
+cl_program          ocl_create_program_from_binary_for_fpga
+                                        (OclPlatform        *ocl,
+                                         char* binaryfile);
 int                 ocl_get_num_devices (OclPlatform        *ocl);
 cl_device_id *      ocl_get_devices     (OclPlatform        *ocl);
 cl_command_queue *  ocl_get_cmd_queues  (OclPlatform        *ocl);

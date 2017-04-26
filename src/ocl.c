@@ -120,7 +120,7 @@ ocl_read_program (const char *filename)
     length = ftell (fp);
     rewind (fp);
 
-    buffer = malloc (length + 1);
+    buffer = (char*) malloc (length + 1);
     buffer[length] = '\0';
 
     if (buffer == NULL) {
@@ -146,10 +146,10 @@ create_platform_and_devices (unsigned platform, cl_device_type type)
     cl_uint num_platforms;
     cl_platform_id *platforms;
 
-    ocl = malloc (sizeof(OclPlatform));
+    ocl = (OclPlatform*) malloc (sizeof(OclPlatform));
 
     OCL_CHECK_ERROR (clGetPlatformIDs (0, NULL, &num_platforms));
-    platforms = malloc (sizeof (cl_platform_id) * num_platforms);
+    platforms = (cl_uint) malloc (sizeof (cl_platform_id) * num_platforms);
 
     if (platform >= num_platforms) {
         fprintf (stderr, "invalid platform %i out of %i platforms\n", platform, num_platforms);
@@ -161,7 +161,7 @@ create_platform_and_devices (unsigned platform, cl_device_type type)
 
     OCL_CHECK_ERROR (clGetDeviceIDs (ocl->platform, type, 0, NULL, &ocl->num_devices));
 
-    ocl->devices = malloc (ocl->num_devices * sizeof(cl_device_id));
+    ocl->devices = (_cl_device_id**) malloc (ocl->num_devices * sizeof(cl_device_id));
     OCL_CHECK_ERROR (clGetDeviceIDs (ocl->platform, type, ocl->num_devices, ocl->devices, NULL));
 
     free (platforms);
@@ -206,7 +206,7 @@ ocl_new_with_queues (unsigned platform,
         return NULL;
 
     ocl->own_queues = 1;
-    ocl->cmd_queues = malloc (ocl->num_devices * sizeof(cl_command_queue));
+    ocl->cmd_queues = (_cl_command_queue**) malloc (ocl->num_devices * sizeof(cl_command_queue));
 
     for (cl_uint i = 0; i < ocl->num_devices; i++) {
         ocl->cmd_queues[i] = clCreateCommandQueue (ocl->context, ocl->devices[i],
@@ -331,7 +331,7 @@ ocl_get_platform_info (OclPlatform *ocl,
     char *result;
 
     OCL_CHECK_ERROR (clGetPlatformInfo (ocl->platform, param, 0, NULL, &size));
-    result = malloc (size);
+    result = (char*) malloc (size);
     OCL_CHECK_ERROR (clGetPlatformInfo (ocl->platform, param, size, result, NULL));
     return result;
 }
@@ -361,7 +361,7 @@ ocl_create_program_from_source (OclPlatform *ocl,
         transfer_error (tmp_err, errcode);
 
         OCL_CHECK_ERROR (clGetProgramBuildInfo (program, ocl->devices[0], CL_PROGRAM_BUILD_LOG, 0, NULL, &log_size));
-        log = malloc (log_size * sizeof(char));
+        log = (char*) malloc (log_size * sizeof(char));
 
         OCL_CHECK_ERROR (clGetProgramBuildInfo (program, ocl->devices[0], CL_PROGRAM_BUILD_LOG, log_size, log, NULL));
         fprintf (stderr, "\n** Error building program. Build log:\n%s\n", log);
@@ -392,6 +392,96 @@ ocl_create_program_from_file (OclPlatform *ocl,
     free(source);
     return program;
 }
+
+
+
+
+
+cl_program
+ocl_create_program_from_binary(OclPlatform *ocl, const char *source, cl_int *errcode)
+{
+        cl_int tmp_err, binary_status;
+        cl_program program;
+
+        size_t pos;
+        FILE *fp;
+
+        if ((fp = fopen(source, "rb")) != NULL) {
+                if (fseek(fp, 0, SEEK_END) == 0) {
+                        if ((pos = ftell(fp)) != -1L) {
+                                printf("Dateigröße beträgt %lu Bytes.\n", pos);
+                        } else {
+                                perror(source);
+                        }
+                } else {
+                        perror(source);
+                }
+
+        } else {
+                perror(source);
+        }
+
+
+
+        unsigned char* programBinary = (unsigned char*) malloc(sizeof(char) * (pos));
+        fread(programBinary, 1, pos, fp);
+        fclose(fp);
+
+
+
+        program = clCreateProgramWithBinary(ocl->context, ocl->num_devices, ocl->devices, &pos, (const unsigned char**) &programBinary, &binary_status,&tmp_err);
+
+        if (tmp_err != CL_SUCCESS) {
+                transfer_error (tmp_err, errcode);
+                return NULL;
+        }
+
+
+        if(binary_status != CL_SUCCESS)
+        {
+                transfer_error(binary_status, errcode);
+                return NULL;
+        }
+
+        tmp_err= clBuildProgram(program, ocl->num_devices, ocl->devices, NULL,NULL,NULL);
+
+        if (tmp_err != CL_SUCCESS) {
+                size_t log_size;
+                char* log;
+
+                transfer_error (tmp_err, errcode);
+
+                OCL_CHECK_ERROR (clGetProgramBuildInfo (program, ocl->devices[0], CL_PROGRAM_BUILD_LOG, 0, NULL, &log_size));
+                log = (char*)malloc (log_size * sizeof(char));
+
+                OCL_CHECK_ERROR (clGetProgramBuildInfo (program, ocl->devices[0], CL_PROGRAM_BUILD_LOG, log_size, log, NULL));
+                fprintf (stderr, "\n** Error building program. Build log:\n%s\n", log);
+                free (log);
+                return NULL;
+        }
+
+        *errcode = CL_SUCCESS;
+        free(programBinary);
+
+
+        return program;
+
+
+
+}
+
+//This function uses ALTERA SDK for OpenCL
+cl_program
+ocl_create_program_from_binary_for_fpga(OclPlatform *ocl, const char* binaryfile)
+{
+        cl_program temp;
+        temp = createProgramFromBinary(ocl->context, binaryfile, ocl->devices, (unsigned int) ocl->num_devices);
+        return temp;
+
+}
+
+
+
 
 cl_context
 ocl_get_context (OclPlatform *ocl)
